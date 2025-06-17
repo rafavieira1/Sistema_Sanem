@@ -1,0 +1,243 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Fundo principal - cinza bem escuro para conforto visual */
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+
+    /* Cards e componentes - cinza mais claro que o fundo para destaque */
+    --card: 0 0% 9%;
+    --card-foreground: 0 0% 98%;
+
+    /* Popovers e modais - tom intermediário */
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Cor primária - azul vibrante para contraste */
+    --primary: 210 100% 55%;
+    --primary-foreground: 0 0% 4%;
+
+    /* Elementos secundários - tom médio */
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 95%;
+
+    /* Elementos mudos/desabilitados */
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 75%;
+
+    /* Elementos de destaque */
+    --accent: 0 0% 16%;
+    --accent-foreground: 0 0% 98%;
+
+    /* Elementos destrutivos - vermelho mais suave */
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Bordas e inputs - tons sutis */
+    --border: 0 0% 18%;
+    --input: 0 0% 14%;
+    --ring: 210 100% 55%;
+
+    /* Sidebar ainda mais escura para hierarquia */
+    --sidebar-background: 0 0% 2%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 210 100% 55%;
+    --sidebar-primary-foreground: 0 0% 4%;
+    --sidebar-accent: 0 0% 6%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 12%;
+    --sidebar-ring: 210 100% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    /* Força o modo escuro quando a classe dark está presente */
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    /* Transição suave entre temas */
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Força aplicação do tema */
+    min-height: 100vh;
+  }
+
+  /* Força o fundo escuro em todas as páginas principais */
+  .dark main {
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Melhora a aparência dos scrollbars */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/20;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-md;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+
+  /* Melhora a seleção de texto */
+  ::selection {
+    @apply bg-primary/25 text-foreground;
+  }
+
+  /* Garante que elementos com cores fixas se adaptem ao tema */
+  .dark .bg-gray-50 {
+    @apply bg-muted/50 !important;
+  }
+
+  .dark .bg-gray-100 {
+    @apply bg-muted !important;
+  }
+
+  .dark .text-gray-900 {
+    @apply text-foreground !important;
+  }
+
+  .dark .text-gray-600 {
+    @apply text-muted-foreground !important;
+  }
+
+  .dark .text-gray-500 {
+    @apply text-muted-foreground/80 !important;
+  }
+
+  .dark .text-gray-400 {
+    @apply text-muted-foreground/60 !important;
+  }
+
+  /* Melhora cores dos backgrounds coloridos no modo escuro */
+  .dark .bg-blue-50 {
+    @apply bg-blue-900/20 !important;
+  }
+
+  .dark .bg-green-50 {
+    @apply bg-green-900/20 !important;
+  }
+
+  .dark .bg-purple-50 {
+    @apply bg-purple-900/20 !important;
+  }
+
+  .dark .bg-orange-50 {
+    @apply bg-orange-900/20 !important;
+  }
+
+  .dark .bg-red-50 {
+    @apply bg-red-900/20 !important;
+  }
+
+  .dark .text-blue-600 {
+    @apply text-blue-400 !important;
+  }
+
+  .dark .text-green-600 {
+    @apply text-green-400 !important;
+  }
+
+  .dark .text-purple-600 {
+    @apply text-purple-400 !important;
+  }
+
+  .dark .text-orange-600 {
+    @apply text-orange-400 !important;
+  }
+
+  .dark .text-red-600 {
+    @apply text-red-400 !important;
+  }
+
+  .dark .border-orange-200 {
+    @apply border-orange-600/30 !important;
+  }
+
+  .dark .hover\:bg-orange-100:hover {
+    @apply hover:bg-orange-900/30 !important;
+  }
+
+  .dark .hover\:bg-gray-50:hover {
+    @apply hover:bg-muted/50 !important;
+  }
+
+  .dark .border-gray-300 {
+    @apply border-border !important;
+  }
+
+  /* Melhora a aparência dos cards no modo escuro */
+  .dark .card {
+    background-color: hsl(var(--card));
+    border-color: hsl(var(--border));
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  }
+
+  .dark .card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  }
+}

@@ -64,9 +64,11 @@ const Index = () => {
             {/* Logo e título principal */}
             <div className="space-y-4">
               <div className="flex items-center justify-center lg:justify-start gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Heart className="h-6 w-6 text-white" />
-                </div>
+                <img 
+                  src="/sanem_logo_transparent.png" 
+                  alt="SANEM Logo" 
+                  className="h-12 w-12 object-contain"
+                />
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-neutral-900 to-neutral-700 dark:from-neutral-100 dark:to-neutral-300 bg-clip-text text-transparent">
                   SANEM
                 </h1>

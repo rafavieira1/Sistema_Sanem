@@ -9,20 +9,30 @@ import { Users, UserPlus, Heart, Briefcase } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { GridBackground } from "@/components/ui/grid-background";
 
 const Cadastro = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("beneficiario");
 
+  // Verificar se usuário é super admin
+  const isSuperAdmin = user?.role === "superadmin";
+
   useEffect(() => {
     const tabFromUrl = searchParams.get("tab");
     if (tabFromUrl && ["beneficiario", "dependente", "doador", "voluntario"].includes(tabFromUrl)) {
-      setActiveTab(tabFromUrl);
+      // Se não é super admin e está tentando acessar aba de voluntário, redireciona para beneficiário
+      if (tabFromUrl === "voluntario" && !isSuperAdmin) {
+        setActiveTab("beneficiario");
+      } else {
+        setActiveTab(tabFromUrl);
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, isSuperAdmin]);
 
   const handleSubmit = async (e: React.FormEvent, tipo: string) => {
     e.preventDefault();
@@ -49,7 +59,7 @@ const Cadastro = () => {
         </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className={`grid w-full ${isSuperAdmin ? 'grid-cols-4' : 'grid-cols-3'}`}>
           <TabsTrigger value="beneficiario" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Beneficiário
@@ -62,10 +72,12 @@ const Cadastro = () => {
             <Heart className="h-4 w-4" />
             Doador
           </TabsTrigger>
-          <TabsTrigger value="voluntario" className="flex items-center gap-2">
-            <Briefcase className="h-4 w-4" />
-            Voluntário
-          </TabsTrigger>
+          {isSuperAdmin && (
+            <TabsTrigger value="voluntario" className="flex items-center gap-2">
+              <Briefcase className="h-4 w-4" />
+              Voluntário
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* Cadastro de Beneficiário */}
@@ -329,98 +341,100 @@ const Cadastro = () => {
           </Card>
         </TabsContent>
 
-        {/* Cadastro de Voluntário */}
-        <TabsContent value="voluntario">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5" />
-                Cadastro de Voluntário
-              </CardTitle>
-              <CardDescription>
-                Registre novos voluntários para trabalhar na SANEM
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={(e) => handleSubmit(e, "Voluntário")} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="nome-voluntario">Nome Completo *</Label>
-                    <Input id="nome-voluntario" placeholder="Digite o nome completo" required />
+        {/* Cadastro de Voluntário - Apenas para Super Admins */}
+        {isSuperAdmin && (
+          <TabsContent value="voluntario">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Briefcase className="h-5 w-5" />
+                  Cadastro de Voluntário
+                </CardTitle>
+                <CardDescription>
+                  Registre novos voluntários para trabalhar na SANEM
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={(e) => handleSubmit(e, "Voluntário")} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="nome-voluntario">Nome Completo *</Label>
+                      <Input id="nome-voluntario" placeholder="Digite o nome completo" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="cpf-voluntario">CPF *</Label>
+                      <Input id="cpf-voluntario" placeholder="000.000.000-00" required />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="cpf-voluntario">CPF *</Label>
-                    <Input id="cpf-voluntario" placeholder="000.000.000-00" required />
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="telefone-voluntario">Telefone *</Label>
-                    <Input id="telefone-voluntario" placeholder="(11) 99999-9999" required />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="telefone-voluntario">Telefone *</Label>
+                      <Input id="telefone-voluntario" placeholder="(11) 99999-9999" required />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email-voluntario">E-mail *</Label>
+                      <Input id="email-voluntario" type="email" placeholder="email@exemplo.com" required />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email-voluntario">E-mail *</Label>
-                    <Input id="email-voluntario" type="email" placeholder="email@exemplo.com" required />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="funcao">Função/Área de Atuação</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a função" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="atendimento">Atendimento</SelectItem>
+                          <SelectItem value="organizacao">Organização</SelectItem>
+                          <SelectItem value="administrativa">Administrativa</SelectItem>
+                          <SelectItem value="geral">Geral</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="disponibilidade">Disponibilidade</Label>
+                      <Select>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="manha">Manhã</SelectItem>
+                          <SelectItem value="tarde">Tarde</SelectItem>
+                          <SelectItem value="noite">Noite</SelectItem>
+                          <SelectItem value="fins-semana">Fins de Semana</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="funcao">Função/Área de Atuação</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a função" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="atendimento">Atendimento</SelectItem>
-                        <SelectItem value="organizacao">Organização</SelectItem>
-                        <SelectItem value="administrativa">Administrativa</SelectItem>
-                        <SelectItem value="geral">Geral</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="endereco-voluntario">Endereço</Label>
+                    <Input id="endereco-voluntario" placeholder="Rua, número, bairro, cidade - CEP" />
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="disponibilidade">Disponibilidade</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="manha">Manhã</SelectItem>
-                        <SelectItem value="tarde">Tarde</SelectItem>
-                        <SelectItem value="noite">Noite</SelectItem>
-                        <SelectItem value="fins-semana">Fins de Semana</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label htmlFor="experiencia">Experiência/Habilidades</Label>
+                    <Textarea 
+                      id="experiencia" 
+                      placeholder="Descreva experiências anteriores e habilidades relevantes"
+                      rows={3}
+                    />
                   </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="endereco-voluntario">Endereço</Label>
-                  <Input id="endereco-voluntario" placeholder="Rua, número, bairro, cidade - CEP" />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="experiencia">Experiência/Habilidades</Label>
-                  <Textarea 
-                    id="experiencia" 
-                    placeholder="Descreva experiências anteriores e habilidades relevantes"
-                    rows={3}
-                  />
-                </div>
-
-                <Button 
-                  type="submit" 
-                  className="w-full bg-purple-600 hover:bg-purple-700"
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Cadastrando..." : "Cadastrar Voluntário"}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-purple-600 hover:bg-purple-700"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Cadastrando..." : "Cadastrar Voluntário"}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
       </Tabs>
       </main>
     </GridBackground>

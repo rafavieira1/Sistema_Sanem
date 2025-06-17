@@ -206,16 +206,10 @@ npm run dev
 
 Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
-## 🆘 Suporte e Contato
-
 ---
 
 <div align="center">
 
 **Desenvolvido por Rafael Vieira para apoiar comunidades em vulnerabilidade social**
-
-[![Made with React](https://img.shields.io/badge/Made_with-React-blue.svg)](https://reactjs.org/)
-[![Powered by Supabase](https://img.shields.io/badge/Powered_by-Supabase-green.svg)](https://supabase.com/)
-[![Built with TypeScript](https://img.shields.io/badge/Built_with-TypeScript-blue.svg)](https://typescriptlang.org/)
 
 </div>

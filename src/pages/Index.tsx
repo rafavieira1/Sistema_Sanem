@@ -17,6 +17,7 @@ const Index = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,144 +58,145 @@ const Index = () => {
       </div>
 
       <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
-          
-          {/* Lado esquerdo - Branding e informações */}
-          <div className="space-y-8 text-center lg:text-left">
-            {/* Logo e título principal */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-center lg:justify-start gap-3">
+        <Card className="w-full max-w-6xl shadow-xl border-neutral-200/50 dark:border-neutral-700/50 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm overflow-hidden">
+          <div className="grid lg:grid-cols-2 min-h-[600px]">
+            
+            {/* Lado esquerdo - Branding e informações */}
+            <div className="p-8 lg:p-12 flex flex-col justify-center items-center text-center space-y-8">
+              {/* Logo e título principal */}
+              <div className="flex flex-col items-center -space-y-10">
                 <img 
                   src="/sanem_logo_transparent.png" 
                   alt="SANEM Logo" 
-                  className="h-12 w-12 object-contain"
+                  className="h-60 w-60 object-contain"
                 />
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-neutral-900 to-neutral-700 dark:from-neutral-100 dark:to-neutral-300 bg-clip-text text-transparent">
-                  SANEM
-                </h1>
-              </div>
-              
-              <div className="space-y-2">
-                <p className="text-xl font-medium text-neutral-600 dark:text-neutral-300">
+                <p className="text-xl font-semibold text-neutral-600 dark:text-neutral-300">
                   Sistema de Gerenciamento de Doações
                 </p>
-                <p className="text-neutral-500 dark:text-neutral-400 max-w-lg mx-auto lg:mx-0">
-                  Plataforma completa para gestão de doações e apoio a pessoas em vulnerabilidade social
-                </p>
               </div>
-            </div>
 
-            {/* Recursos principais */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="group p-4 rounded-xl bg-white/60 dark:bg-neutral-800/60 backdrop-blur-sm border border-neutral-200/50 dark:border-neutral-700/50 hover:bg-white/80 dark:hover:bg-neutral-800/80 transition-all duration-200">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <div>
+              {/* Recursos principais */}
+              <div className="grid grid-cols-1 gap-6 w-full max-w-xs mx-auto">
+                <div className="flex flex-col items-center gap-2 group">
+                  <Users className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors" />
+                  <div className="text-center">
                     <p className="font-semibold text-neutral-800 dark:text-neutral-200">Beneficiários</p>
                     <p className="text-sm text-neutral-500 dark:text-neutral-400">Gestão completa</p>
                   </div>
                 </div>
-              </div>
 
-              <div className="group p-4 rounded-xl bg-white/60 dark:bg-neutral-800/60 backdrop-blur-sm border border-neutral-200/50 dark:border-neutral-700/50 hover:bg-white/80 dark:hover:bg-neutral-800/80 transition-all duration-200">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
-                  </div>
-                  <div>
+                <div className="flex flex-col items-center gap-2 group">
+                  <Package className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors" />
+                  <div className="text-center">
                     <p className="font-semibold text-neutral-800 dark:text-neutral-200">Estoque</p>
                     <p className="text-sm text-neutral-500 dark:text-neutral-400">Controle total</p>
                   </div>
                 </div>
-              </div>
 
-              <div className="group p-4 rounded-xl bg-white/60 dark:bg-neutral-800/60 backdrop-blur-sm border border-neutral-200/50 dark:border-neutral-700/50 hover:bg-white/80 dark:hover:bg-neutral-800/80 transition-all duration-200">
-                <div className="flex flex-col items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <TrendingUp className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <div>
+                <div className="flex flex-col items-center gap-2 group">
+                  <TrendingUp className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors" />
+                  <div className="text-center">
                     <p className="font-semibold text-neutral-800 dark:text-neutral-200">Relatórios</p>
                     <p className="text-sm text-neutral-500 dark:text-neutral-400">Análises detalhadas</p>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Aviso de acesso restrito */}
-            <div className="p-4 rounded-xl bg-amber-50/80 dark:bg-amber-900/20 border border-amber-200/50 dark:border-amber-800/50 backdrop-blur-sm">
-              <div className="flex items-start gap-3">
-                <Shield className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-                <div className="space-y-1">
-                  <p className="font-medium text-amber-800 dark:text-amber-300 text-sm">
-                    Acesso Restrito
-                  </p>
-                  <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
-                    Sistema destinado apenas a administradores autorizados. Entre em contato com a administração para obter acesso.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Lado direito - Formulário de Login */}
-          <div className="flex justify-center lg:justify-end">
-            <Card className="w-full max-w-md shadow-xl border-neutral-200/50 dark:border-neutral-700/50 bg-white/80 dark:bg-neutral-800/80 backdrop-blur-sm">
-              <CardHeader className="space-y-1 pb-6">
-                <CardTitle className="text-2xl font-bold text-neutral-800 dark:text-neutral-100">
-                  Acesso ao Sistema
-                </CardTitle>
-                <CardDescription className="text-neutral-500 dark:text-neutral-400">
-                  Digite suas credenciais para continuar
-                </CardDescription>
-              </CardHeader>
               
-              <CardContent>
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-neutral-700 dark:text-neutral-300">
-                      E-mail
-                    </Label>
+            </div>
+
+            {/* Lado direito - Formulário de Login */}
+            <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-800 p-8 lg:p-12 flex flex-col justify-center items-center relative overflow-hidden">
+              {/* Gradiente decorativo adicional */}
+              <div className="absolute inset-0 bg-gradient-to-tl from-transparent via-white/5 to-white/10"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-transparent to-purple-600/10"></div>
+              <div className="w-full max-w-sm mx-auto space-y-8 relative z-10">
+                {/* Ícone e título */}
+                <div className="text-center space-y-4">
+                  <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto">
+                    <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <h2 className="text-2xl font-semibold text-white tracking-wide">
+                    ACESSO AO SISTEMA
+                  </h2>
+                </div>
+                
+                <form onSubmit={handleLogin} className="space-y-8">
+                  {/* Campo Email */}
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg className="h-5 w-5 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 7.89a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
                     <Input
                       id="email"
                       type="email"
-                      placeholder="seu@email.com"
+                      placeholder="Email ID"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       required
-                      className="border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
+                      className="pl-12 pr-4 py-4 border-0 border-b-2 border-white/30 bg-transparent focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-white/70 focus:shadow-none text-white placeholder:text-blue-200 rounded-none transition-all duration-200"
+                      style={{ boxShadow: 'none', outline: 'none' }}
                     />
                   </div>
                   
-                  <div className="space-y-2">
-                    <Label htmlFor="password" className="text-neutral-700 dark:text-neutral-300">
-                      Senha
-                    </Label>
+                  {/* Campo Senha */}
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg className="h-5 w-5 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
                     <Input
                       id="password"
                       type="password"
-                      placeholder="Digite sua senha"
+                      placeholder="Password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="border-neutral-200 dark:border-neutral-600 bg-white dark:bg-neutral-700 focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
+                      className="pl-12 pr-4 py-4 border-0 border-b-2 border-white/30 bg-transparent focus:outline-none focus:ring-0 focus:ring-offset-0 focus:border-white/70 focus:shadow-none text-white placeholder:text-blue-200 rounded-none transition-all duration-200"
+                      style={{ boxShadow: 'none', outline: 'none' }}
                     />
                   </div>
                   
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 dark:from-blue-500 dark:to-blue-600 dark:hover:from-blue-600 dark:hover:to-blue-700 text-white font-medium py-2.5 shadow-lg hover:shadow-xl transition-all duration-200"
-                    disabled={isLoading || authLoading}
-                  >
-                    {isLoading ? "Entrando..." : "Entrar"}
-                  </Button>
+                                     {/* Remember me e Forgot password */}
+                   <div className="flex items-center justify-between text-sm">
+                     <label className="flex items-center text-blue-100 cursor-pointer group" onClick={() => setRememberMe(!rememberMe)}>
+                       <div className="relative mr-3">
+                         <div className={`w-4 h-4 border-2 rounded transition-all duration-200 flex items-center justify-center ${
+                           rememberMe 
+                             ? 'bg-white border-white' 
+                             : 'bg-transparent border-white/40'
+                         }`}>
+                           <svg className={`w-3 h-3 text-blue-600 transition-opacity duration-200 ${
+                             rememberMe ? 'opacity-100' : 'opacity-0'
+                           }`} fill="currentColor" viewBox="0 0 20 20">
+                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                           </svg>
+                         </div>
+                       </div>
+                       <span className="group-hover:text-white transition-colors">Lembrar-me</span>
+                     </label>
+                     <button type="button" className="text-blue-200 hover:text-white transition-colors">
+                       Forgot Password?
+                     </button>
+                   </div>
+                   
+                   <Button 
+                     type="submit" 
+                     className="w-full bg-white hover:bg-white dark:bg-white dark:hover:bg-white text-blue-700 font-medium py-3 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                     disabled={isLoading || authLoading}
+                   >
+                     {isLoading ? "ENTRANDO..." : "LOGIN"}
+                   </Button>
                 </form>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
-        </div>
+        </Card>
       </div>
     </GridBackground>
   );

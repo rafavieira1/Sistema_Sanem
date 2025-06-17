@@ -1,24 +1,7 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
-
-export type UserRole = "superadmin" | "admin" | "voluntario";
-
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: UserRole;
-  permissions: string[];
-}
-
-interface AuthContextType {
-  user: User | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
-  hasPermission: (permission: string) => boolean;
-  isLoading: boolean;
-}
+import { User, UserRole, AuthContextType } from "@/types";
+import { ROLE_PERMISSIONS, STORAGE_KEYS } from "@/constants";
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -30,36 +13,6 @@ export const useAuth = () => {
   return context;
 };
 
-const rolePermissions: Record<UserRole, string[]> = {
-  superadmin: [
-    "view_all_reports",
-    "generate_reports", 
-    "manage_users",
-    "manage_volunteers",
-    "manage_beneficiaries",
-    "manage_donations",
-    "manage_stock",
-    "manage_distributions",
-    "view_dashboard",
-    "system_settings"
-  ],
-  admin: [
-    "view_reports",
-    "generate_reports",
-    "manage_beneficiaries", 
-    "manage_donations",
-    "manage_stock",
-    "manage_distributions",
-    "view_dashboard"
-  ],
-  voluntario: [
-    "manage_beneficiaries",
-    "manage_donations", 
-    "register_distributions",
-    "view_dashboard"
-  ]
-};
-
 interface AuthProviderProps {
   children: ReactNode;
 }
@@ -69,21 +22,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("sanem_token");
-    const userData = localStorage.getItem("sanem_user");
+    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+    const userData = localStorage.getItem(STORAGE_KEYS.USER_DATA);
     
     if (token && userData) {
       try {
         const parsedUser = JSON.parse(userData);
-        const userWithPermissions = {
+        const userWithPermissions: User = {
           ...parsedUser,
-          permissions: rolePermissions[parsedUser.role] || rolePermissions.voluntario
+          permissions: ROLE_PERMISSIONS[parsedUser.role as UserRole] || ROLE_PERMISSIONS.voluntario
         };
         setUser(userWithPermissions);
       } catch (error) {
         console.error("Erro ao carregar dados do usuário:", error);
-        localStorage.removeItem("sanem_token");
-        localStorage.removeItem("sanem_user");
+        localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+        localStorage.removeItem(STORAGE_KEYS.USER_DATA);
       }
     }
     setIsLoading(false);
@@ -127,11 +80,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         name: userData.name,
         email: userData.email,
         role: userData.role as UserRole,
-        permissions: rolePermissions[userData.role as UserRole]
+        permissions: ROLE_PERMISSIONS[userData.role as UserRole]
       };
 
-      localStorage.setItem("sanem_token", "jwt_token_" + userData.id);
-      localStorage.setItem("sanem_user", JSON.stringify(userWithPermissions));
+      localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, "jwt_token_" + userData.id);
+      localStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(userWithPermissions));
       setUser(userWithPermissions);
       return true;
     } catch (error) {
@@ -143,8 +96,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   const logout = () => {
-    localStorage.removeItem("sanem_token");
-    localStorage.removeItem("sanem_user");
+    localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.USER_DATA);
     setUser(null);
   };
 

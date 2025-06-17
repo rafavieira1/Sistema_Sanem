@@ -1,73 +1,174 @@
-# Welcome to your Lovable project
+# 🏥 SANEM - Sistema de Gerenciamento de Doações
 
-## Project info
+Sistema completo para gestão de doações e apoio a pessoas em vulnerabilidade social.
 
-**URL**: https://lovable.dev/projects/7c8d1084-d126-4b39-b0f4-231a1e8923d5
+## 🚀 Tecnologias
 
-## How can I edit this code?
+- **Frontend**: React 18 + TypeScript + Vite
+- **Styling**: Tailwind CSS + shadcn/ui
+- **Backend**: Supabase (PostgreSQL)
+- **Autenticação**: Supabase Auth
+- **Estado**: Context API + React Query
+- **Validação**: Zod + React Hook Form
+- **Linting**: ESLint + TypeScript ESLint
+- **Formatação**: Prettier
 
-There are several ways of editing your application.
+## 📁 Estrutura do Projeto
 
-**Use Lovable**
+```
+src/
+├── components/          # Componentes reutilizáveis
+│   ├── common/         # Componentes comuns (LoadingSpinner, ErrorBoundary)
+│   ├── ui/             # Componentes de UI (shadcn/ui)
+│   ├── AppSidebar.tsx  # Sidebar principal
+│   ├── ProtectedRoute.tsx
+│   └── ThemeToggle.tsx
+├── contexts/           # React Contexts
+│   └── AuthContext.tsx
+├── hooks/              # Custom hooks
+│   ├── useLocalStorage.ts
+│   ├── useTheme.tsx
+│   └── use-toast.ts
+├── pages/              # Páginas da aplicação
+├── types/              # Definições de tipos TypeScript
+├── constants/          # Constantes da aplicação
+├── utils/              # Funções utilitárias
+├── integrations/       # Integrações externas (Supabase)
+└── lib/               # Configurações e utilitários
+```
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/7c8d1084-d126-4b39-b0f4-231a1e8923d5) and start prompting.
+## 🔧 Configuração do Ambiente
 
-Changes made via Lovable will be committed automatically to this repo.
+1. **Clone o repositório**
+```bash
+git clone <repository-url>
+cd sanem
+```
 
-**Use your preferred IDE**
+2. **Instale as dependências**
+```bash
+npm install
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+3. **Configure as variáveis de ambiente**
+```bash
+cp .env.example .env.local
+```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+Edite o arquivo `.env.local` com suas credenciais:
+```env
+VITE_SUPABASE_URL=your_supabase_url_here
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
+```
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+4. **Execute o projeto**
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## 🎯 Funcionalidades
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- ✅ **Autenticação** - Sistema de login com diferentes níveis de acesso
+- ✅ **Dashboard** - Visão geral das atividades
+- ✅ **Gestão de Beneficiários** - Cadastro e controle de beneficiários
+- ✅ **Controle de Doações** - Registro e acompanhamento de doações
+- ✅ **Gestão de Estoque** - Controle de itens disponíveis
+- ✅ **Distribuição** - Registro de retiradas pelos beneficiários
+- ✅ **Relatórios** - Análises e estatísticas
+- ✅ **Gestão de Usuários** - Controle de acesso (Super Admin)
+- ✅ **Tema Escuro/Claro** - Interface adaptável
 
-**Use GitHub Codespaces**
+## 👥 Níveis de Acesso
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Super Administrador
+- Acesso total ao sistema
+- Gerenciamento de usuários
+- Configurações do sistema
 
-## What technologies are used for this project?
+### Administrador
+- Gestão de beneficiários, doações, estoque e distribuições
+- Visualização de relatórios
+- Sem acesso ao gerenciamento de usuários
 
-This project is built with:
+### Voluntário
+- Gestão básica de beneficiários
+- Registro de doações
+- Acesso limitado ao dashboard
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🛠️ Scripts Disponíveis
 
-## How can I deploy this project?
+```bash
+npm run dev          # Desenvolvimento
+npm run build        # Build para produção
+npm run preview      # Preview do build
+npm run lint         # Verificação de código
+npm run type-check   # Verificação de tipos
+```
 
-Simply open [Lovable](https://lovable.dev/projects/7c8d1084-d126-4b39-b0f4-231a1e8923d5) and click on Share -> Publish.
+## 📐 Padrões de Código
 
-## Can I connect a custom domain to my Lovable project?
+### TypeScript
+- Strict mode habilitado
+- Tipagem forte obrigatória
+- Interfaces bem definidas
 
-Yes, you can!
+### React
+- Functional Components com Hooks
+- Props tipadas com interfaces
+- Error Boundaries implementados
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Organização
+- Imports absolutos com `@/`
+- Componentes organizados por responsabilidade
+- Constantes centralizadas
+- Utilitários reutilizáveis
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## 🔒 Segurança
+
+- Variáveis de ambiente para dados sensíveis
+- Validação de entrada nos formulários
+- Sanitização de dados
+- Controle de acesso baseado em roles
+
+## 🧪 Testes
+
+```bash
+npm run test         # Executar testes
+npm run test:watch   # Testes em modo watch
+npm run coverage     # Relatório de cobertura
+```
+
+## 📱 Responsividade
+
+- Mobile-first design
+- Breakpoints consistentes
+- Componentes adaptáveis
+
+## 🚀 Deploy
+
+O projeto está configurado para deploy em:
+- Vercel
+- Netlify
+- GitHub Pages
+
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+## 🆘 Suporte
+
+Em caso de dúvidas ou problemas:
+- Abra uma issue no GitHub
+- Entre em contato com a equipe de desenvolvimento
+
+---
+
+**Desenvolvido com ❤️ para apoiar comunidades em vulnerabilidade social**

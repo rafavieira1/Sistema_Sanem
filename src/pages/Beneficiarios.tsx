@@ -1,15 +1,17 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Search, Plus, Eye, Edit, Users, Phone, MapPin, Calendar, UserPlus, Baby, AlertTriangle } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { GridBackground } from "@/components/ui/grid-background";
+import { ROUTES } from "@/constants";
 
 const Beneficiarios = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
 
   // Dados removidos - nenhum beneficiário cadastrado ainda
   const beneficiarios: any[] = [];
@@ -35,6 +37,10 @@ const Beneficiarios = () => {
     if (percentage >= 70) return "text-green-600";
     if (percentage >= 30) return "text-yellow-600";
     return "text-red-600";
+  };
+
+  const handleNovoBeneficiario = () => {
+    navigate(`${ROUTES.CADASTRO}?tab=beneficiario`);
   };
 
   return (
@@ -162,7 +168,7 @@ const Beneficiarios = () => {
                 className="pl-10"
               />
             </div>
-            <Button className="bg-blue-600 hover:bg-blue-700">
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleNovoBeneficiario}>
               <Plus className="h-4 w-4 mr-2" />
               Novo Beneficiário
             </Button>

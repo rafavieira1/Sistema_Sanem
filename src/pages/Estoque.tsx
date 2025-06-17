@@ -1,11 +1,14 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Package, Search, Filter, TrendingDown, TrendingUp, AlertTriangle, AlertCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Package, Search, Filter, TrendingDown, TrendingUp, AlertTriangle, AlertCircle, Plus } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { GridBackground } from "@/components/ui/grid-background";
 
@@ -13,6 +16,9 @@ const Estoque = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sizeFilter, setSizeFilter] = useState("all");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   // Dados removidos - agora usando array vazio
   const estoqueItens: any[] = [];
@@ -46,6 +52,22 @@ const Estoque = () => {
   const totalItens = estoqueItens.reduce((sum, item) => sum + (item.quantidade || 0), 0);
   const itensAbaixoMinimo = estoqueItens.filter(item => item.quantidade <= item.minimo).length;
   const itensCriticos = estoqueItens.filter(item => item.quantidade <= item.minimo * 0.5).length;
+
+  const handleSubmitNovoItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    // Simula adição do item
+    setTimeout(() => {
+      toast({
+        title: "Item adicionado!",
+        description: "O item foi adicionado ao estoque com sucesso.",
+      });
+      setIsLoading(false);
+      setIsModalOpen(false);
+      // Aqui você faria a integração com a API/banco de dados
+    }, 1000);
+  };
 
   return (
     <GridBackground className="flex-1 min-h-screen">
@@ -210,12 +232,121 @@ const Estoque = () => {
       {/* Lista de Itens em Estoque */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-900">
+          <h2 className="text-xl font-semibold text-foreground">
             Itens em Estoque ({filteredItens.length})
           </h2>
-          <Button className="bg-green-600 hover:bg-green-700">
-            Adicionar Item Manual
-          </Button>
+          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-green-600 hover:bg-green-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Item Manual
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[600px]">
+              <DialogHeader>
+                <DialogTitle>Adicionar Item ao Estoque</DialogTitle>
+                <DialogDescription>
+                  Cadastre um novo item manualmente no estoque da SANEM.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmitNovoItem} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tipo">Tipo do Item *</Label>
+                    <Input id="tipo" placeholder="Ex: Camiseta, Calça, Sapato..." required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="categoria">Categoria *</Label>
+                    <Select required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a categoria" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Roupas">Roupas</SelectItem>
+                        <SelectItem value="Calçados">Calçados</SelectItem>
+                        <SelectItem value="Acessórios">Acessórios</SelectItem>
+                        <SelectItem value="Utensílios">Utensílios</SelectItem>
+                        <SelectItem value="Brinquedos">Brinquedos</SelectItem>
+                        <SelectItem value="Móveis">Móveis</SelectItem>
+                        <SelectItem value="Eletrônicos">Eletrônicos</SelectItem>
+                        <SelectItem value="Outros">Outros</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tamanho">Tamanho</Label>
+                    <Select>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="PP">PP</SelectItem>
+                        <SelectItem value="P">P</SelectItem>
+                        <SelectItem value="M">M</SelectItem>
+                        <SelectItem value="G">G</SelectItem>
+                        <SelectItem value="GG">GG</SelectItem>
+                        <SelectItem value="XGG">XGG</SelectItem>
+                        <SelectItem value="N/A">Não se aplica</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="quantidade">Quantidade *</Label>
+                    <Input id="quantidade" type="number" min="1" placeholder="0" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="minimo">Quantidade Mínima *</Label>
+                    <Input id="minimo" type="number" min="0" placeholder="0" required />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="condicao">Condição do Item</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione a condição" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Ótimo">Ótimo</SelectItem>
+                      <SelectItem value="Bom">Bom</SelectItem>
+                      <SelectItem value="Regular">Regular</SelectItem>
+                      <SelectItem value="Usado">Usado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="observacoes">Observações</Label>
+                  <Textarea 
+                    id="observacoes" 
+                    placeholder="Informações adicionais sobre o item (cor, marca, detalhes específicos...)"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setIsModalOpen(false)}
+                    disabled={isLoading}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    className="bg-green-600 hover:bg-green-700"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Adicionando..." : "Adicionar Item"}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
 
         <div className="grid gap-4">

@@ -1,5 +1,3 @@
-
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,13 +6,23 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Users, UserPlus, Heart, Briefcase } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useSearchParams } from "react-router-dom";
 import { GridBackground } from "@/components/ui/grid-background";
 
 const Cadastro = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState("beneficiario");
+
+  useEffect(() => {
+    const tabFromUrl = searchParams.get("tab");
+    if (tabFromUrl && ["beneficiario", "dependente", "doador", "voluntario"].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent, tipo: string) => {
     e.preventDefault();
@@ -40,7 +48,7 @@ const Cadastro = () => {
           </div>
         </div>
 
-      <Tabs defaultValue="beneficiario" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="beneficiario" className="flex items-center gap-2">
             <Users className="h-4 w-4" />

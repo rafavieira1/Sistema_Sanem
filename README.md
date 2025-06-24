@@ -1,4 +1,4 @@
-# �� SANEM - Sistema de Assistência e Apoio à Necessitados
+#SANEM - Sistema de Assistência e Apoio à Necessitados
 
 > **Sistema completo para gestão de doações, beneficiários e distribuição de recursos para pessoas em vulnerabilidade social**
 
@@ -18,44 +18,6 @@ O **SANEM** é um sistema web desenvolvido para organizações sociais, ONGs e i
 - 📊 **Relatórios e estatísticas** em tempo real
 - 👤 **Gestão de usuários** com diferentes níveis de acesso
 - 🔍 **Auditoria completa** de todas as operações
-
-## ✨ Principais Funcionalidades
-
-### 🏠 **Dashboard Inteligente**
-- Estatísticas em tempo real de beneficiários, doações e estoque
-- Atividades recentes do sistema
-- Alertas para ações urgentes (estoque baixo, limites atingidos)
-- Ações rápidas para funcionalidades mais utilizadas
-
-### 👥 **Gestão de Pessoas**
-- **Beneficiários:** Cadastro completo com controle de limites mensais
-- **Dependentes:** Vinculação automática aos beneficiários
-- **Doadores:** Registro de pessoas físicas e jurídicas
-- **Usuários:** Sistema de permissões (Super Admin, Admin, Voluntário)
-
-### 🎁 **Controle de Doações**
-- Registro de doações em **produtos** e **dinheiro**
-- Múltiplos itens por doação com quantidades específicas
-- Processamento automático para estoque
-- Rastreabilidade completa (quem doou o quê e quando)
-
-### 📦 **Gestão de Estoque**
-- Controle automático de entrada via doações processadas
-- Categorização por tipo (roupas, calçados, alimentos, etc.)
-- Histórico completo de movimentações
-- Alertas de estoque baixo
-
-### 📋 **Sistema de Distribuição**
-- Controle de entregas para beneficiários
-- Verificação automática de limites mensais
-- Histórico completo de distribuições
-- Integração com controle de estoque
-
-### 📊 **Relatórios e Analytics**
-- Estatísticas mensais e anuais
-- Relatórios de doações, distribuições e beneficiários
-- Gráficos e indicadores de performance
-- Exportação de dados
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -210,21 +172,6 @@ npm run dev
 
 ---
 
-## 👥 **Desenvolvimento em Equipe**
-
-**O sistema foi configurado para ser usado por múltiplos desenvolvedores:**
-- 🌐 **Banco único compartilhado** - Todos acessam o mesmo banco de dados
-- 📁 **Mesmo `.env.local`** - Todas as máquinas usam as mesmas credenciais
-- 🔄 **Dados sincronizados** - Mudanças são visíveis para toda equipe em tempo real
-- 👥 **Colaboração facilitada** - Teste com dados reais e consistentes
-- 🚀 **Setup rápido** - Nova máquina funciona em menos de 5 minutos
-
-### **⚙️ Para Novos Membros da Equipe:**
-1. Clone o repositório
-2. Copie o arquivo `.env.local` (peça para qualquer membro da equipe)
-3. Execute `npm install && npm run dev`
-4. Pronto! Está usando o mesmo banco que todos os outros
-
 ## 👥 Níveis de Acesso e Permissões
 
 ### 🔴 **Super Administrador**
@@ -271,33 +218,6 @@ Beneficiário solicita → Verificação de limite → Separação de itens → 
 Nova pessoa → Cadastro básico → Documentação → Ativação → Disponível no sistema
 ```
 
-## 🔒 Segurança e Auditoria
-
-- **Autenticação:** Sistema seguro com Supabase Auth
-- **Autorização:** Row Level Security (RLS) no banco de dados
-- **Auditoria:** Logs completos de todas as operações
-- **Rastreabilidade:** Histórico de quem fez o quê e quando
-- **Backup:** Backup automático do Supabase
-- **Criptografia:** Dados sensíveis criptografados
-
-## 🎨 Interface e Experiência
-
-- **Design Responsivo:** Funciona em desktop, tablet e mobile
-- **Tema Escuro/Claro:** Alternância automática ou manual
-- **Acessibilidade:** Seguindo padrões WCAG
-- **Performance:** Carregamento rápido e otimizado
-- **Feedback Visual:** Toasts, loading states, confirmações
-- **Navegação Intuitiva:** Sidebar organizada por funcionalidade
-
-## 🤝 Contribuição
-
-### **Como Contribuir**
-1. Fork o projeto
-2. Crie uma branch: `git checkout -b feature/nova-funcionalidade`
-3. Commit: `git commit -m 'feat: adiciona nova funcionalidade'`
-4. Push: `git push origin feature/nova-funcionalidade`
-5. Abra um Pull Request
-
 ### **Padrões de Commit**
 - `feat:` nova funcionalidade
 - `fix:` correção de bug
@@ -306,11 +226,3 @@ Nova pessoa → Cadastro básico → Documentação → Ativação → Disponív
 - `refactor:` refatoração
 - `test:` testes
 - `chore:` tarefas de manutenção
-
-<div align="center">
-
-**🤝 Desenvolvido com ❤️ por Rafael Vieira para apoiar comunidades em vulnerabilidade social**
-
-*"Tecnologia a serviço da solidariedade"*
-
-</div>

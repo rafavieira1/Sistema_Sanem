@@ -10,7 +10,6 @@ import {
   User,
   LogOut,
   Shield,
-  Settings,
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
@@ -88,12 +87,6 @@ export function AppSidebar() {
       href: "/gestao-usuarios",
       icon: Shield,
       permission: "manage_users"
-    },
-    {
-      label: "Configurações",
-      href: "/configuracoes",
-      icon: Settings,
-      permission: "system_settings"
     }
   ];
 

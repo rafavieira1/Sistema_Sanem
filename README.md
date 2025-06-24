@@ -1,23 +1,83 @@
-# 🏥 SANEM - Sistema de Gerenciamento de Doações
+# �� SANEM - Sistema de Assistência e Apoio à Necessitados
 
-> **Sistema completo para gestão de doações e apoio a pessoas em vulnerabilidade social**
+> **Sistema completo para gestão de doações, beneficiários e distribuição de recursos para pessoas em vulnerabilidade social**
 
 [![React](https://img.shields.io/badge/React-18.0-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Database-green.svg)](https://supabase.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.0-38B2AC.svg)](https://tailwindcss.com/)
 
-## 🚀 Tecnologias
+## 🎯 Sobre o Projeto
 
-- **Frontend**: React 18 + TypeScript + Vite
-- **Styling**: Tailwind CSS + shadcn/ui
-- **Backend**: Supabase (PostgreSQL)
-- **Autenticação**: Sistema customizado com Supabase
-- **Estado**: Context API + React Query
-- **Validação**: Zod + React Hook Form
-- **Linting**: ESLint + TypeScript ESLint
-- **Icons**: Lucide React
-- **Motion**: Framer Motion
+O **SANEM** é um sistema web desenvolvido para organizações sociais, ONGs e instituições de caridade que trabalham com assistência a pessoas em vulnerabilidade social. O sistema oferece controle completo sobre:
+
+- 👥 **Cadastro e gestão de beneficiários** e seus dependentes
+- 🎁 **Registro e controle de doações** (produtos e dinheiro)
+- 📦 **Gestão de estoque** com controle de entrada e saída
+- 📋 **Distribuição controlada** de recursos para beneficiários
+- 📊 **Relatórios e estatísticas** em tempo real
+- 👤 **Gestão de usuários** com diferentes níveis de acesso
+- 🔍 **Auditoria completa** de todas as operações
+
+## ✨ Principais Funcionalidades
+
+### 🏠 **Dashboard Inteligente**
+- Estatísticas em tempo real de beneficiários, doações e estoque
+- Atividades recentes do sistema
+- Alertas para ações urgentes (estoque baixo, limites atingidos)
+- Ações rápidas para funcionalidades mais utilizadas
+
+### 👥 **Gestão de Pessoas**
+- **Beneficiários:** Cadastro completo com controle de limites mensais
+- **Dependentes:** Vinculação automática aos beneficiários
+- **Doadores:** Registro de pessoas físicas e jurídicas
+- **Usuários:** Sistema de permissões (Super Admin, Admin, Voluntário)
+
+### 🎁 **Controle de Doações**
+- Registro de doações em **produtos** e **dinheiro**
+- Múltiplos itens por doação com quantidades específicas
+- Processamento automático para estoque
+- Rastreabilidade completa (quem doou o quê e quando)
+
+### 📦 **Gestão de Estoque**
+- Controle automático de entrada via doações processadas
+- Categorização por tipo (roupas, calçados, alimentos, etc.)
+- Histórico completo de movimentações
+- Alertas de estoque baixo
+
+### 📋 **Sistema de Distribuição**
+- Controle de entregas para beneficiários
+- Verificação automática de limites mensais
+- Histórico completo de distribuições
+- Integração com controle de estoque
+
+### 📊 **Relatórios e Analytics**
+- Estatísticas mensais e anuais
+- Relatórios de doações, distribuições e beneficiários
+- Gráficos e indicadores de performance
+- Exportação de dados
+
+## 🚀 Tecnologias Utilizadas
+
+### **Frontend**
+- **React 18** com TypeScript para interface moderna e tipada
+- **Vite** para desenvolvimento rápido e build otimizado
+- **Tailwind CSS** + **shadcn/ui** para design system consistente
+- **Lucide React** para ícones vetoriais
+- **React Hook Form** + **Zod** para validação de formulários
+
+### **Backend & Database**
+- **Supabase** como Backend-as-a-Service
+- **PostgreSQL** para banco de dados relacional
+- **Row Level Security (RLS)** para segurança de dados
+- **Real-time subscriptions** para atualizações em tempo real
+
+### **Arquitetura & Padrões**
+- **Context API** para gerenciamento de estado global
+- **Custom Hooks** para lógica reutilizável
+- **Protected Routes** com controle de permissões
+- **Error Boundaries** para tratamento de erros
+- **Responsive Design** para acesso mobile e desktop
 
 ## 📁 Estrutura do Projeto
 
@@ -39,7 +99,7 @@ src/
 │   ├── Index.tsx       # Página de login
 │   ├── Dashboard.tsx   # Dashboard principal
 │   ├── Beneficiarios.tsx # Gestão de beneficiários
-│   ├── Cadastro.tsx    # Cadastro de pessoas
+│   ├── Cadastro.tsx    # Cadastro de pessoas (beneficiários, doadores, dependentes)
 │   ├── Doacoes.tsx     # Controle de doações
 │   ├── Estoque.tsx     # Gestão de estoque
 │   ├── Distribuicao.tsx # Distribuição de itens
@@ -66,7 +126,7 @@ O sistema utiliza **16 tabelas** organizadas logicamente:
 - `doadores` - Pessoas/empresas que fazem doações
 
 ### 📦 **Controle de Estoque**
-- `categorias_produtos` - Categorias (roupas, calçados, etc.)
+- `categorias_produtos` - Categorias (roupas, calçados, alimentos, etc.)
 - `produtos` - Itens individuais do estoque
 - `movimentacoes_estoque` - Histórico de entrada/saída
 
@@ -79,8 +139,8 @@ O sistema utiliza **16 tabelas** organizadas logicamente:
 - `itens_distribuicao` - Produtos específicos distribuídos
 
 ### ⚙️ **Sistema e Controle**
-- `audit_logs` - Logs de auditoria
-- `configuracoes_sistema` - Configurações do sistema
+- `audit_logs` - Logs de auditoria para rastreabilidade
+- `configuracoes_sistema` - Configurações globais
 - `notificacoes` - Sistema de notificações
 - `atividades_sistema` - Atividades para o dashboard
 - `periodos_mensais` - Controle de períodos e limites
@@ -93,8 +153,8 @@ O sistema utiliza **16 tabelas** organizadas logicamente:
 
 ### 1. **Clone o repositório**
 ```bash
-git clone https://github.com/rafavieira1/sanem.git
-cd sanem
+git clone https://github.com/LuizAltissimo/Sistema_Sanem.git
+cd Sistema_Sanem
 ```
 
 ### 2. **Instale as dependências**
@@ -122,6 +182,14 @@ npm run dev
 - **Email:** `superadmin@sanem.org`
 - **Senha:** `123`
 - **Papel:** Super Administrador
+
+- **Email:** `admin@sanem.org`
+- **Senha:** `123`
+- **Papel:** Administrador
+
+- **Email:** `voluntario@sanem.org`
+- **Senha:** `123`
+- **Papel:** Voluntário
 
 ---
 
@@ -162,10 +230,10 @@ npm run dev
 ### 🔴 **Super Administrador**
 - **Acesso:** Completo ao sistema
 - **Permissões:**
-  - Gerenciamento de usuários
+  - Gerenciamento de usuários (criar, editar, desativar)
   - Configurações do sistema
-  - Todos os relatórios
-  - Logs de auditoria
+  - Todos os relatórios e estatísticas
+  - Logs de auditoria completos
   - Gestão completa de todas as funcionalidades
 
 ### 🟡 **Administrador**
@@ -173,24 +241,60 @@ npm run dev
 - **Permissões:**
   - Gestão de beneficiários, doações, estoque
   - Controle de distribuições
+  - Processamento de doações
   - Relatórios operacionais
-  - **Sem acesso:** Gestão de usuários e configurações
+  - **Sem acesso:** Gestão de usuários e configurações do sistema
 
 ### 🟢 **Voluntário**
 - **Acesso:** Operações básicas
 - **Permissões:**
-  - Dashboard básico
-  - Gestão de beneficiários
+  - Dashboard com estatísticas básicas
+  - Cadastro de beneficiários
   - Registro de doações
-  - **Sem acesso:** Estoque, distribuições, relatórios
+  - Visualização de estoque
+  - **Sem acesso:** Distribuições, relatórios avançados, gestão de usuários
 
+## 🔄 Fluxos de Trabalho
+
+### **1. Fluxo de Doações**
+```
+Doador faz doação → Registro no sistema → Processamento → Entrada no estoque → Disponível para distribuição
+```
+
+### **2. Fluxo de Distribuição**
+```
+Beneficiário solicita → Verificação de limite → Separação de itens → Distribuição → Baixa no estoque
+```
+
+### **3. Fluxo de Cadastro**
+```
+Nova pessoa → Cadastro básico → Documentação → Ativação → Disponível no sistema
+```
+
+## 🔒 Segurança e Auditoria
+
+- **Autenticação:** Sistema seguro com Supabase Auth
+- **Autorização:** Row Level Security (RLS) no banco de dados
+- **Auditoria:** Logs completos de todas as operações
+- **Rastreabilidade:** Histórico de quem fez o quê e quando
+- **Backup:** Backup automático do Supabase
+- **Criptografia:** Dados sensíveis criptografados
+
+## 🎨 Interface e Experiência
+
+- **Design Responsivo:** Funciona em desktop, tablet e mobile
+- **Tema Escuro/Claro:** Alternância automática ou manual
+- **Acessibilidade:** Seguindo padrões WCAG
+- **Performance:** Carregamento rápido e otimizado
+- **Feedback Visual:** Toasts, loading states, confirmações
+- **Navegação Intuitiva:** Sidebar organizada por funcionalidade
 
 ## 🤝 Contribuição
 
 ### **Como Contribuir**
 1. Fork o projeto
 2. Crie uma branch: `git checkout -b feature/nova-funcionalidade`
-3. Commit: `git commit -m 'Add: nova funcionalidade'`
+3. Commit: `git commit -m 'feat: adiciona nova funcionalidade'`
 4. Push: `git push origin feature/nova-funcionalidade`
 5. Abra um Pull Request
 
@@ -201,15 +305,12 @@ npm run dev
 - `style:` formatação
 - `refactor:` refatoração
 - `test:` testes
-
-## 📄 Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
----
+- `chore:` tarefas de manutenção
 
 <div align="center">
 
-**Desenvolvido por Rafael Vieira para apoiar comunidades em vulnerabilidade social**
+**🤝 Desenvolvido com ❤️ por Rafael Vieira para apoiar comunidades em vulnerabilidade social**
+
+*"Tecnologia a serviço da solidariedade"*
 
 </div>

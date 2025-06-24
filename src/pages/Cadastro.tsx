@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { GridBackground } from "@/components/ui/grid-background";
+import { supabase } from "@/integrations/supabase/client";
 
 const Cadastro = () => {
   const { toast } = useToast();
@@ -18,6 +19,15 @@ const Cadastro = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("beneficiario");
+  const [beneficiarios, setBeneficiarios] = useState<Array<{id: string, nome: string}>>([]);
+  
+  // Estados para campos select
+  const [selectedBeneficiario, setSelectedBeneficiario] = useState("");
+  const [selectedParentesco, setSelectedParentesco] = useState("");
+  const [selectedTipoDoador, setSelectedTipoDoador] = useState("");
+  const [selectedFrequencia, setSelectedFrequencia] = useState("");
+  const [selectedFuncao, setSelectedFuncao] = useState("");
+  const [selectedDisponibilidade, setSelectedDisponibilidade] = useState("");
 
   // Verificar se usuário é super admin
   const isSuperAdmin = user?.role === "superadmin";
@@ -34,17 +44,185 @@ const Cadastro = () => {
     }
   }, [searchParams, isSuperAdmin]);
 
+  // Carregar beneficiários para o formulário de dependentes
+  useEffect(() => {
+    const loadBeneficiarios = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('beneficiarios')
+          .select('id, nome')
+          .eq('status', 'Ativo')
+          .order('nome');
+
+        if (error) {
+          throw error;
+        }
+
+        setBeneficiarios(data || []);
+      } catch (error) {
+        console.error('Erro ao carregar beneficiários:', error);
+      }
+    };
+
+    loadBeneficiarios();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent, tipo: string) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    setTimeout(() => {
+
+    try {
+      const formData = new FormData(e.target as HTMLFormElement);
+
+      if (tipo === "Beneficiário") {
+        const beneficiarioData = {
+          nome: formData.get('nome') as string,
+          cpf: formData.get('cpf') as string,
+          data_nascimento: formData.get('nascimento') as string || null,
+          telefone: formData.get('telefone') as string,
+          email: formData.get('email') as string || null,
+          endereco: formData.get('endereco') as string,
+          status: 'Ativo',
+          created_by: user?.id
+        };
+
+        const { data, error } = await supabase
+          .from('beneficiarios')
+          .insert([beneficiarioData])
+          .select();
+
+        if (error) {
+          throw error;
+        }
+
+        toast({
+          title: "✅ Beneficiário cadastrado!",
+          description: `${beneficiarioData.nome} foi cadastrado(a) com sucesso.`,
+        });
+
+        // Limpar formulário
+        (e.target as HTMLFormElement).reset();
+        
+      } else if (tipo === "Dependente") {
+        if (!selectedBeneficiario) {
+          toast({
+            title: "❌ Erro no cadastro",
+            description: "Por favor, selecione um beneficiário responsável.",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        const dependenteData = {
+          nome: formData.get('nome-dependente') as string,
+          data_nascimento: formData.get('nascimento-dependente') as string || null,
+          parentesco: selectedParentesco || null,
+          beneficiario_id: selectedBeneficiario,
+        };
+
+        console.log('Dados do dependente a serem inseridos:', dependenteData);
+
+        const { data, error } = await supabase
+          .from('dependentes')
+          .insert([dependenteData])
+          .select();
+
+        if (error) {
+          console.error('Erro detalhado ao inserir dependente:', error);
+          throw error;
+        }
+
+        // Atualizar contador de dependentes no beneficiário
+        const { count } = await supabase
+          .from('dependentes')
+          .select('*', { count: 'exact' })
+          .eq('beneficiario_id', selectedBeneficiario);
+
+        if (count !== null) {
+          await supabase
+            .from('beneficiarios')
+            .update({ numero_dependentes: count })
+            .eq('id', selectedBeneficiario);
+        }
+
+        toast({
+          title: "✅ Dependente cadastrado!",
+          description: `${dependenteData.nome} foi cadastrado(a) com sucesso.`,
+        });
+
+        // Limpar formulário e estados
+        (e.target as HTMLFormElement).reset();
+        setSelectedBeneficiario("");
+        setSelectedParentesco("");
+
+      } else if (tipo === "Doador") {
+        const doadorData = {
+          nome: formData.get('nome-doador') as string,
+          cpf_cnpj: formData.get('documento-doador') as string || null,
+          telefone: formData.get('telefone-doador') as string || null,
+          email: formData.get('email-doador') as string || null,
+          endereco: formData.get('endereco-doador') as string || null,
+          tipo: selectedTipoDoador || null,
+        };
+
+        const { data, error } = await supabase
+          .from('doadores')
+          .insert([doadorData])
+          .select();
+
+        if (error) {
+          throw error;
+        }
+
+        toast({
+          title: "✅ Doador cadastrado!",
+          description: `${doadorData.nome} foi cadastrado(a) com sucesso.`,
+        });
+
+        // Limpar formulário e estados
+        (e.target as HTMLFormElement).reset();
+        setSelectedTipoDoador("");
+        setSelectedFrequencia("");
+
+      } else if (tipo === "Voluntário") {
+        // Para voluntários, vamos criar um usuário no sistema
+        const voluntarioData = {
+          name: formData.get('nome-voluntario') as string,
+          email: formData.get('email-voluntario') as string,
+          password_hash: 'temp_password_hash', // Senha temporária que deve ser alterada
+          role: 'voluntario' as const,
+          status: 'Ativo'
+        };
+
+        const { data, error } = await supabase
+          .from('users')
+          .insert([voluntarioData])
+          .select();
+
+        if (error) {
+          throw error;
+        }
+
+        toast({
+          title: "✅ Voluntário cadastrado!",
+          description: `${voluntarioData.name} foi cadastrado(a) com sucesso. Uma senha temporária foi criada.`,
+        });
+
+        // Limpar formulário e estados
+        (e.target as HTMLFormElement).reset();
+        setSelectedFuncao("");
+        setSelectedDisponibilidade("");
+      }
+    } catch (error) {
+      console.error('Erro ao cadastrar:', error);
       toast({
-        title: "Cadastro realizado!",
-        description: `${tipo} cadastrado(a) com sucesso.`,
+        title: "❌ Erro no cadastro",
+        description: "Ocorreu um erro ao salvar os dados. Tente novamente.",
+        variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
@@ -97,11 +275,11 @@ const Cadastro = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="nome">Nome Completo *</Label>
-                    <Input id="nome" placeholder="Digite o nome completo" required />
+                    <Input id="nome" name="nome" placeholder="Digite o nome completo" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="cpf">CPF *</Label>
-                    <Input id="cpf" placeholder="000.000.000-00" required />
+                    <Input id="cpf" name="cpf" placeholder="000.000.000-00" required />
                   </div>
                 </div>
 
@@ -112,24 +290,24 @@ const Cadastro = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="nascimento">Data de Nascimento</Label>
-                    <Input id="nascimento" type="date" />
+                    <Input id="nascimento" name="nascimento" type="date" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="telefone">Telefone *</Label>
-                    <Input id="telefone" placeholder="(11) 99999-9999" required />
+                    <Input id="telefone" name="telefone" placeholder="(11) 99999-9999" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="email">E-mail</Label>
-                    <Input id="email" type="email" placeholder="email@exemplo.com" />
+                    <Input id="email" name="email" type="email" placeholder="email@exemplo.com" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="endereco">Endereço Completo *</Label>
-                  <Input id="endereco" placeholder="Rua, número, bairro, cidade - CEP" required />
+                  <Input id="endereco" name="endereco" placeholder="Rua, número, bairro, cidade - CEP" required />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -194,14 +372,21 @@ const Cadastro = () => {
               <form onSubmit={(e) => handleSubmit(e, "Dependente")} className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="beneficiario-responsavel">Beneficiário Responsável *</Label>
-                  <Select>
+                  <Select value={selectedBeneficiario} onValueChange={setSelectedBeneficiario}>
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione o beneficiário responsável" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="maria">Maria Silva Santos</SelectItem>
-                      <SelectItem value="joao">João Carlos Oliveira</SelectItem>
-                      <SelectItem value="ana">Ana Paula Costa</SelectItem>
+                      {beneficiarios.map((beneficiario) => (
+                        <SelectItem key={beneficiario.id} value={beneficiario.id}>
+                          {beneficiario.nome}
+                        </SelectItem>
+                      ))}
+                      {beneficiarios.length === 0 && (
+                        <SelectItem value="" disabled>
+                          Nenhum beneficiário ativo encontrado
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -209,18 +394,18 @@ const Cadastro = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="nome-dependente">Nome Completo *</Label>
-                    <Input id="nome-dependente" placeholder="Digite o nome completo" required />
+                    <Input id="nome-dependente" name="nome-dependente" placeholder="Digite o nome completo" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="nascimento-dependente">Data de Nascimento *</Label>
-                    <Input id="nascimento-dependente" type="date" required />
+                    <Input id="nascimento-dependente" name="nascimento-dependente" type="date" required />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="parentesco">Parentesco *</Label>
-                    <Select>
+                    <Select value={selectedParentesco} onValueChange={setSelectedParentesco}>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o parentesco" />
                       </SelectTrigger>
@@ -234,7 +419,7 @@ const Cadastro = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="cpf-dependente">CPF</Label>
-                    <Input id="cpf-dependente" placeholder="000.000.000-00" />
+                    <Input id="cpf-dependente" name="cpf-dependente" placeholder="000.000.000-00" />
                   </div>
                 </div>
 
@@ -276,11 +461,11 @@ const Cadastro = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="nome-doador">Nome Completo *</Label>
-                    <Input id="nome-doador" placeholder="Digite o nome completo" required />
+                    <Input id="nome-doador" name="nome-doador" placeholder="Digite o nome completo" required />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="tipo-doador">Tipo de Doador</Label>
-                    <Select>
+                    <Select value={selectedTipoDoador} onValueChange={setSelectedTipoDoador}>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
@@ -295,22 +480,22 @@ const Cadastro = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="documento-doador">CPF/CNPJ</Label>
-                    <Input id="documento-doador" placeholder="000.000.000-00" />
+                    <Input id="documento-doador" name="documento-doador" placeholder="000.000.000-00" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="telefone-doador">Telefone</Label>
-                    <Input id="telefone-doador" placeholder="(11) 99999-9999" />
+                    <Input id="telefone-doador" name="telefone-doador" placeholder="(11) 99999-9999" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="email-doador">E-mail</Label>
-                    <Input id="email-doador" type="email" placeholder="email@exemplo.com" />
+                    <Input id="email-doador" name="email-doador" type="email" placeholder="email@exemplo.com" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="frequencia">Frequência de Doação</Label>
-                    <Select>
+                    <Select value={selectedFrequencia} onValueChange={setSelectedFrequencia}>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione" />
                       </SelectTrigger>
@@ -326,7 +511,7 @@ const Cadastro = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="endereco-doador">Endereço</Label>
-                  <Input id="endereco-doador" placeholder="Rua, número, bairro, cidade - CEP" />
+                  <Input id="endereco-doador" name="endereco-doador" placeholder="Rua, número, bairro, cidade - CEP" />
                 </div>
 
                 <Button 
@@ -359,29 +544,29 @@ const Cadastro = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="nome-voluntario">Nome Completo *</Label>
-                      <Input id="nome-voluntario" placeholder="Digite o nome completo" required />
+                      <Input id="nome-voluntario" name="nome-voluntario" placeholder="Digite o nome completo" required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="cpf-voluntario">CPF *</Label>
-                      <Input id="cpf-voluntario" placeholder="000.000.000-00" required />
+                      <Input id="cpf-voluntario" name="cpf-voluntario" placeholder="000.000.000-00" required />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="telefone-voluntario">Telefone *</Label>
-                      <Input id="telefone-voluntario" placeholder="(11) 99999-9999" required />
+                      <Input id="telefone-voluntario" name="telefone-voluntario" placeholder="(11) 99999-9999" required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email-voluntario">E-mail *</Label>
-                      <Input id="email-voluntario" type="email" placeholder="email@exemplo.com" required />
+                      <Input id="email-voluntario" name="email-voluntario" type="email" placeholder="email@exemplo.com" required />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="funcao">Função/Área de Atuação</Label>
-                      <Select>
+                      <Select value={selectedFuncao} onValueChange={setSelectedFuncao}>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione a função" />
                         </SelectTrigger>
@@ -395,7 +580,7 @@ const Cadastro = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="disponibilidade">Disponibilidade</Label>
-                      <Select>
+                      <Select value={selectedDisponibilidade} onValueChange={setSelectedDisponibilidade}>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione" />
                         </SelectTrigger>
@@ -411,13 +596,14 @@ const Cadastro = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="endereco-voluntario">Endereço</Label>
-                    <Input id="endereco-voluntario" placeholder="Rua, número, bairro, cidade - CEP" />
+                    <Input id="endereco-voluntario" name="endereco-voluntario" placeholder="Rua, número, bairro, cidade - CEP" />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="experiencia">Experiência/Habilidades</Label>
                     <Textarea 
                       id="experiencia" 
+                      name="experiencia"
                       placeholder="Descreva experiências anteriores e habilidades relevantes"
                       rows={3}
                     />

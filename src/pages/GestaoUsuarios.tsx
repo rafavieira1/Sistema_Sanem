@@ -1,4 +1,4 @@
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { UserPlus, Edit, Trash2, Shield, Users, Settings, UserX, UserCheck } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,9 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { UserPlus, Edit, Trash2, Shield, Users, Settings } from "lucide-react";
+
 import { useState, useEffect } from "react";
-import { useAuth, UserRole } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
+import type { UserRole } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { GridBackground } from "@/components/ui/grid-background";
@@ -195,6 +196,57 @@ const GestaoUsuarios = () => {
     setIsDialogOpen(true);
   };
 
+  const handleToggleStatus = async (usuario: Usuario) => {
+    if (!canManageUsers) {
+      toast({
+        title: "Acesso Negado",
+        description: "Você não tem permissão para alterar status de usuários",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (usuario.role === 'superadmin') {
+      toast({
+        title: "Operação não permitida",
+        description: "Não é possível alterar o status do superadministrador",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const novoStatus = usuario.status === 'ativo' ? 'inativo' : 'ativo';
+    const acao = novoStatus === 'ativo' ? 'reativar' : 'desativar';
+
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ 
+          status: novoStatus,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', usuario.id);
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: `Usuário ${acao === 'reativar' ? 'reativado' : 'desativado'}`,
+        description: `${usuario.name} foi ${acao === 'reativar' ? 'reativado' : 'desativado'} com sucesso.`,
+      });
+      
+      fetchUsuarios();
+    } catch (error: any) {
+      console.error(`Erro ao ${acao} usuário:`, error);
+      toast({
+        title: "Erro",
+        description: `Não foi possível ${acao} o usuário: ${error.message || 'Erro desconhecido'}`,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDelete = async (usuario: Usuario) => {
     if (!canDeleteUsers) {
       toast({
@@ -214,30 +266,66 @@ const GestaoUsuarios = () => {
       return;
     }
 
+    // Confirmar exclusão
+    const confirmacao = window.confirm(
+      `ATENÇÃO: Excluir permanentemente o usuário "${usuario.name}"?\n\n` +
+      `⚠️  Esta ação é IRREVERSÍVEL!\n\n` +
+      `Se este usuário criou registros no sistema (beneficiários, doações, etc.), ` +
+      `a exclusão será bloqueada para manter a integridade dos dados.\n\n` +
+      `💡 RECOMENDAÇÃO: Use "Desativar" ao invés de excluir.\n\n` +
+      `Continuar com a exclusão?`
+    );
+
+    if (!confirmacao) {
+      return;
+    }
+
     try {
+      // Tentar excluir o usuário
       const { error } = await supabase
         .from('users')
         .delete()
         .eq('id', usuario.id);
 
       if (error) {
+        console.error("Erro detalhado:", error);
+        
+        // Verificar se é erro de chave estrangeira
+        if (error.code === '23503' || error.message.includes('foreign key') || error.message.includes('violates foreign key constraint')) {
+          toast({
+            title: "❌ Exclusão bloqueada",
+            description: `O usuário "${usuario.name}" possui registros relacionados no sistema. Para preservar a integridade dos dados, desative o usuário ao invés de excluí-lo.`,
+            variant: "destructive",
+          });
+          return;
+        }
+        
         throw error;
       }
 
       toast({
-        title: "Usuário removido",
-        description: `${usuario.name} foi removido do sistema.`,
-        variant: "destructive",
+        title: "✅ Usuário excluído",
+        description: `${usuario.name} foi removido permanentemente do sistema.`,
       });
       
       fetchUsuarios();
     } catch (error: any) {
       console.error("Erro ao excluir usuário:", error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível remover o usuário",
-        variant: "destructive",
-      });
+      
+      // Mensagem mais específica para problemas de dependência
+      if (error.code === '23503' || error.message?.includes('foreign key') || error.message?.includes('violates foreign key constraint')) {
+        toast({
+          title: "❌ Erro de integridade",
+          description: `Não é possível excluir "${usuario.name}" pois possui registros relacionados. Use a opção "Desativar" para manter os dados íntegros.`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: `Falha ao excluir usuário: ${error.message || 'Erro desconhecido'}`,
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -446,20 +534,40 @@ const GestaoUsuarios = () => {
                   <TableCell>
                     <div className="flex gap-2">
                       {canManageUsers && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(usuario)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleEdit(usuario)}
+                            title="Editar usuário"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          
+                          {usuario.role !== 'superadmin' && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleToggleStatus(usuario)}
+                              className={usuario.status === 'ativo' 
+                                ? "text-orange-600 hover:text-orange-700" 
+                                : "text-green-600 hover:text-green-700"
+                              }
+                              title={usuario.status === 'ativo' ? 'Desativar usuário' : 'Reativar usuário'}
+                            >
+                              {usuario.status === 'ativo' ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
+                            </Button>
+                          )}
+                        </>
                       )}
+                      
                       {canDeleteUsers && usuario.role !== 'superadmin' && (
                         <Button
                           size="sm"
                           variant="outline"
                           onClick={() => handleDelete(usuario)}
                           className="text-red-600 hover:text-red-700"
+                          title="Excluir usuário permanentemente"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>

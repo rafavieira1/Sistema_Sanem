@@ -1,0 +1,524 @@
+================================================================================
+                    DOCUMENTAÇÃO TÉCNICA - SISTEMA SANEM
+                Sistema de Assistência e Apoio à Necessitados
+================================================================================
+
+ÍNDICE
+------
+1. VISÃO GERAL DO PROJETO
+2. TECNOLOGIAS UTILIZADAS
+3. ARQUITETURA DO SISTEMA
+4. ESTRUTURA DO BANCO DE DADOS
+5. FUNCIONALIDADES PRINCIPAIS
+6. NÍVEIS DE ACESSO E PERMISSÕES
+7. FLUXOS DE TRABALHO
+8. CONFIGURAÇÃO E INSTALAÇÃO
+9. GUIA DE USO
+10. SEGURANÇA E AUDITORIA
+11. MANUTENÇÃO E SUPORTE
+
+================================================================================
+1. VISÃO GERAL DO PROJETO
+================================================================================
+
+NOME: SANEM - Sistema de Assistência e Apoio à Necessitados
+VERSÃO: 1.0.0
+DESENVOLVEDOR: Rafael Vieira / Luiz Altissimo
+REPOSITÓRIO: https://github.com/LuizAltissimo/Sistema_Sanem.git
+
+OBJETIVO:
+O SANEM é um sistema web desenvolvido para organizações sociais, ONGs e 
+instituições de caridade que trabalham com assistência a pessoas em 
+vulnerabilidade social. O sistema oferece controle completo sobre doações, 
+beneficiários, estoque e distribuição de recursos.
+
+PRINCIPAIS BENEFÍCIOS:
+- Controle completo de beneficiários e dependentes
+- Gestão eficiente de doações (produtos e dinheiro)
+- Controle automático de estoque
+- Sistema de distribuição com limites mensais
+- Relatórios e estatísticas em tempo real
+- Auditoria completa de todas as operações
+- Interface moderna e responsiva
+- Sistema de permissões por níveis de usuário
+
+================================================================================
+2. TECNOLOGIAS UTILIZADAS
+================================================================================
+
+FRONTEND:
+- React 18.0 - Biblioteca JavaScript para interfaces de usuário
+- TypeScript 5.0 - Superset do JavaScript com tipagem estática
+- Vite - Ferramenta de build rápida para desenvolvimento
+- Tailwind CSS 3.0 - Framework CSS utilitário
+- shadcn/ui - Biblioteca de componentes de interface
+- Lucide React - Biblioteca de ícones vetoriais
+- React Hook Form - Biblioteca para gerenciamento de formulários
+- Zod - Biblioteca de validação de esquemas
+
+BACKEND E BANCO DE DADOS:
+- Supabase - Backend-as-a-Service (BaaS)
+- PostgreSQL - Banco de dados relacional
+- Row Level Security (RLS) - Segurança em nível de linha
+- Real-time subscriptions - Atualizações em tempo real
+
+FERRAMENTAS DE DESENVOLVIMENTO:
+- ESLint - Linter para JavaScript/TypeScript
+- PostCSS - Processador de CSS
+- Node.js - Ambiente de execução JavaScript
+- npm - Gerenciador de pacotes
+
+ARQUITETURA E PADRÕES:
+- Context API - Gerenciamento de estado global
+- Custom Hooks - Lógica reutilizável
+- Protected Routes - Controle de acesso a rotas
+- Error Boundaries - Tratamento de erros
+- Responsive Design - Design responsivo
+
+================================================================================
+3. ARQUITETURA DO SISTEMA
+================================================================================
+
+ESTRUTURA DE PASTAS:
+src/
+├── components/          # Componentes reutilizáveis
+│   ├── common/         # Componentes comuns (LoadingSpinner, ErrorBoundary)
+│   ├── ui/             # Componentes de UI (shadcn/ui)
+│   ├── AppSidebar.tsx  # Sidebar principal com navegação
+│   ├── ProtectedRoute.tsx # Proteção de rotas por permissão
+│   └── ThemeToggle.tsx # Alternador de tema claro/escuro
+├── contexts/           # React Contexts
+│   └── AuthContext.tsx # Contexto de autenticação e permissões
+├── hooks/              # Custom hooks
+│   ├── useLocalStorage.ts
+│   ├── useTheme.tsx
+│   └── use-toast.ts
+├── pages/              # Páginas da aplicação
+│   ├── Index.tsx       # Página de login
+│   ├── Dashboard.tsx   # Dashboard principal
+│   ├── Beneficiarios.tsx # Gestão de beneficiários
+│   ├── Cadastro.tsx    # Cadastro de pessoas
+│   ├── Doacoes.tsx     # Controle de doações
+│   ├── Estoque.tsx     # Gestão de estoque
+│   ├── Distribuicao.tsx # Distribuição de itens
+│   ├── Relatorios.tsx  # Relatórios e análises
+│   ├── Perfil.tsx      # Perfil do usuário
+│   ├── GestaoUsuarios.tsx # Gestão de usuários (Admin)
+│   └── NotFound.tsx    # Página 404
+├── types/              # Definições de tipos TypeScript
+├── constants/          # Constantes e permissões
+├── utils/              # Funções utilitárias
+├── integrations/       # Integrações externas
+│   └── supabase/      # Cliente e tipos do Supabase
+└── lib/               # Configurações e utilitários
+
+PADRÕES ARQUITETURAIS:
+- Componentização: Interface dividida em componentes reutilizáveis
+- Separação de responsabilidades: Lógica separada da apresentação
+- Estado centralizado: Context API para estado global
+- Tipagem forte: TypeScript para maior segurança
+- Roteamento protegido: Controle de acesso baseado em permissões
+
+================================================================================
+4. ESTRUTURA DO BANCO DE DADOS
+================================================================================
+
+O sistema utiliza 16 TABELAS organizadas logicamente:
+
+GESTÃO DE PESSOAS:
+- users: Usuários do sistema (superadmin, admin, voluntario)
+  * id, email, password_hash, nome, papel, status, created_at, updated_at
+- beneficiarios: Pessoas que recebem as doações
+  * id, nome, cpf, telefone, endereco, data_nascimento, numero_dependentes,
+    limite_mensal, status, created_at, updated_at
+- dependentes: Familiares dos beneficiários
+  * id, beneficiario_id, nome, data_nascimento, parentesco, created_at
+- doadores: Pessoas/empresas que fazem doações
+  * id, nome, cpf_cnpj, telefone, email, endereco, tipo, created_at
+
+CONTROLE DE ESTOQUE:
+- categorias_produtos: Categorias (roupas, calçados, alimentos, etc.)
+  * id, nome, descricao, created_at
+- produtos: Itens individuais do estoque
+  * id, nome, categoria_id, quantidade, descricao, created_at, updated_at
+- movimentacoes_estoque: Histórico de entrada/saída
+  * id, produto_id, tipo, quantidade, quantidade_anterior, quantidade_nova,
+    motivo, referencia_id, referencia_tipo, created_by, created_at
+
+GESTÃO DE DOAÇÕES:
+- doacoes: Registro das doações recebidas
+  * id, doador_id, data_doacao, tipo_doacao, valor_total, observacoes,
+    status, created_by, created_at, updated_at
+- itens_doacao: Produtos específicos de cada doação
+  * id, doacao_id, produto_id, quantidade, observacoes, valor_unitario,
+    created_at
+
+CONTROLE DE DISTRIBUIÇÃO:
+- distribuicoes: Entregas para beneficiários
+  * id, beneficiario_id, data_distribuicao, observacoes, status,
+    created_by, created_at
+- itens_distribuicao: Produtos específicos distribuídos
+  * id, distribuicao_id, produto_id, quantidade, observacoes, created_at
+
+SISTEMA E CONTROLE:
+- audit_logs: Logs de auditoria para rastreabilidade
+  * id, user_id, action, table_name, record_id, old_values, new_values,
+    created_at
+- configuracoes_sistema: Configurações globais
+  * id, chave, valor, descricao, updated_at
+- notificacoes: Sistema de notificações
+  * id, user_id, titulo, mensagem, tipo, lida, created_at
+- atividades_sistema: Atividades para o dashboard
+  * id, tipo, descricao, detalhes, created_at
+- periodos_mensais: Controle de períodos e limites
+  * id, ano, mes, limite_global, created_at
+
+RELACIONAMENTOS:
+- beneficiarios -> dependentes (1:N)
+- doadores -> doacoes (1:N)
+- doacoes -> itens_doacao (1:N)
+- categorias_produtos -> produtos (1:N)
+- produtos -> movimentacoes_estoque (1:N)
+- beneficiarios -> distribuicoes (1:N)
+- distribuicoes -> itens_distribuicao (1:N)
+
+================================================================================
+5. FUNCIONALIDADES PRINCIPAIS
+================================================================================
+
+5.1 DASHBOARD INTELIGENTE
+- Estatísticas em tempo real de beneficiários, doações e estoque
+- Gráficos de crescimento mensal
+- Atividades recentes do sistema
+- Alertas para ações urgentes (estoque baixo, limites atingidos)
+- Ações rápidas para funcionalidades mais utilizadas
+- Cards com efeitos visuais e animações
+
+5.2 GESTÃO DE PESSOAS
+
+BENEFICIÁRIOS:
+- Cadastro completo com dados pessoais
+- Controle de limites mensais de distribuição
+- Visualização de histórico de distribuições
+- Edição e atualização de dados
+- Controle de status (Ativo, Inativo, Limite Atingido)
+- Cálculo automático de idade
+- Contagem automática de dependentes
+
+DEPENDENTES:
+- Vinculação automática aos beneficiários
+- Cadastro com parentesco e idade
+- Atualização automática do contador no beneficiário
+- Visualização na tela de detalhes do beneficiário
+- Remoção com atualização automática de contadores
+
+DOADORES:
+- Registro de pessoas físicas e jurídicas
+- Controle de dados de contato
+- Histórico de doações realizadas
+- Integração com sistema de doações
+
+USUÁRIOS:
+- Sistema de permissões (Super Admin, Admin, Voluntário)
+- Controle de acesso por funcionalidade
+- Gestão de usuários (criar, editar, desativar)
+- Auditoria de ações dos usuários
+
+5.3 CONTROLE DE DOAÇÕES
+- Registro de doações em produtos e dinheiro
+- Múltiplos itens por doação com quantidades específicas
+- Processamento automático para estoque
+- Rastreabilidade completa (quem doou o quê e quando)
+- Status de doação (Pendente, Processada, Cancelada)
+- Formatação automática de valores monetários
+- Descrição opcional para doações em dinheiro
+- Visualização detalhada de doações
+
+5.4 GESTÃO DE ESTOQUE
+- Controle automático de entrada via doações processadas
+- Categorização por tipo (roupas, calçados, alimentos, etc.)
+- Histórico completo de movimentações
+- Alertas de estoque baixo
+- Filtros por categoria e status
+- Busca por nome de produto
+- Adição manual de itens
+- Ocultação automática de itens com quantidade zero
+
+5.5 SISTEMA DE DISTRIBUIÇÃO
+- Controle de entregas para beneficiários
+- Verificação automática de limites mensais
+- Histórico completo de distribuições
+- Integração com controle de estoque
+- Baixa automática no estoque
+- Controle de status das distribuições
+
+5.6 RELATÓRIOS E ANALYTICS
+- Estatísticas mensais e anuais
+- Relatórios de doações, distribuições e beneficiários
+- Gráficos e indicadores de performance
+- Cálculos automáticos de crescimento
+- Exportação de dados
+- Métricas de eficiência
+
+================================================================================
+6. NÍVEIS DE ACESSO E PERMISSÕES
+================================================================================
+
+6.1 SUPER ADMINISTRADOR
+ACESSO: Completo ao sistema
+EMAIL: superadmin@sanem.org
+SENHA: 123
+
+PERMISSÕES:
+- Gerenciamento de usuários (criar, editar, desativar)
+- Configurações do sistema
+- Todos os relatórios e estatísticas
+- Logs de auditoria completos
+- Gestão completa de todas as funcionalidades
+- Acesso a todas as páginas
+- Controle total do sistema
+
+6.2 ADMINISTRADOR
+ACESSO: Operacional completo
+EMAIL: admin@sanem.org
+SENHA: 123
+
+PERMISSÕES:
+- Gestão de beneficiários, doações, estoque
+- Controle de distribuições
+- Processamento de doações
+- Relatórios operacionais
+- Cadastro de pessoas
+- Visualização de estatísticas
+SEM ACESSO: Gestão de usuários e configurações do sistema
+
+6.3 VOLUNTÁRIO
+ACESSO: Operações básicas
+EMAIL: voluntario@sanem.org
+SENHA: 123
+
+PERMISSÕES:
+- Dashboard com estatísticas básicas
+- Cadastro de beneficiários
+- Registro de doações
+- Visualização de estoque
+- Consulta de beneficiários
+SEM ACESSO: Distribuições, relatórios avançados, gestão de usuários
+
+================================================================================
+7. FLUXOS DE TRABALHO
+================================================================================
+
+7.1 FLUXO DE DOAÇÕES
+1. Doador faz contato com a organização
+2. Registro da doação no sistema
+3. Adição de itens (produtos ou dinheiro)
+4. Salvamento da doação com status "Pendente"
+5. Processamento da doação (mudança para "Processada")
+6. Entrada automática dos itens no estoque
+7. Itens ficam disponíveis para distribuição
+
+7.2 FLUXO DE DISTRIBUIÇÃO
+1. Beneficiário solicita assistência
+2. Verificação de limite mensal
+3. Consulta de itens disponíveis no estoque
+4. Separação de itens para distribuição
+5. Registro da distribuição no sistema
+6. Baixa automática no estoque
+7. Atualização do limite mensal do beneficiário
+
+7.3 FLUXO DE CADASTRO
+1. Nova pessoa chega à organização
+2. Cadastro básico no sistema
+3. Coleta de documentação necessária
+4. Ativação no sistema
+5. Pessoa fica disponível para receber assistência
+
+7.4 FLUXO DE AUDITORIA
+1. Usuário realiza qualquer ação no sistema
+2. Sistema registra automaticamente no audit_log
+3. Informações incluem: quem, o quê, quando
+4. Logs ficam disponíveis para consulta
+5. Rastreabilidade completa de todas as operações
+
+================================================================================
+8. CONFIGURAÇÃO E INSTALAÇÃO
+================================================================================
+
+8.1 PRÉ-REQUISITOS
+- Node.js 18+ instalado
+- npm ou yarn como gerenciador de pacotes
+- Navegador web moderno
+- Conexão com internet para Supabase
+
+8.2 INSTALAÇÃO
+1. Clone o repositório:
+   git clone https://github.com/LuizAltissimo/Sistema_Sanem.git
+   cd Sistema_Sanem
+
+2. Instale as dependências:
+   npm install
+
+3. Configure o ambiente:
+   Crie arquivo .env.local na raiz com:
+   VITE_SUPABASE_URL=https://jqpfqwbzdpdvguoulmff.supabase.co
+   VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpxcGZxd2J6ZHBkdmd1b3VsbWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwOTU0NjgsImV4cCI6MjA2NTY3MTQ2OH0.ryOYXPDk72A-Qukjf9lq8-BjdiiCMQGsoBQLxPbK764
+
+4. Execute o projeto:
+   npm run dev
+
+5. Acesse no navegador:
+   http://localhost:5173
+
+8.3 VERIFICAÇÃO DA INSTALAÇÃO
+- Execute npm run dev
+- Acesse http://localhost:5173
+- Faça login com superadmin@sanem.org / 123
+- Se aparecer o Dashboard = Instalação bem-sucedida
+
+8.4 COMANDOS ÚTEIS
+npm run dev          # Inicia servidor de desenvolvimento
+npm run build        # Build para produção
+npm run preview      # Preview do build de produção
+npm run lint         # Executa ESLint
+
+================================================================================
+9. GUIA DE USO
+================================================================================
+
+9.1 PRIMEIRO ACESSO
+1. Acesse http://localhost:5173
+2. Use as credenciais de Super Administrador:
+   Email: superadmin@sanem.org
+   Senha: 123
+3. Explore o Dashboard para entender o sistema
+4. Acesse "Gestão de Usuários" para criar novos usuários
+
+9.2 CADASTRANDO BENEFICIÁRIOS
+1. Acesse "Cadastro de Pessoas"
+2. Selecione a aba "Beneficiário"
+3. Preencha todos os campos obrigatórios
+4. Defina o limite mensal
+5. Salve o cadastro
+6. Beneficiário aparecerá na lista de "Beneficiários"
+
+9.3 REGISTRANDO DOAÇÕES
+1. Acesse "Gestão de Doações"
+2. Clique em "Nova Doação"
+3. Selecione o doador (cadastre se necessário)
+4. Adicione itens à doação:
+   - Para produtos: categoria, descrição, quantidade
+   - Para dinheiro: categoria "Dinheiro", quantia
+5. Adicione observações se necessário
+6. Registre a doação
+7. Use "Processar" para enviar ao estoque
+
+9.4 CONTROLANDO ESTOQUE
+1. Acesse "Controle de Estoque"
+2. Visualize produtos disponíveis
+3. Use filtros para encontrar itens específicos
+4. Adicione itens manualmente se necessário
+5. Acompanhe movimentações no histórico
+
+9.5 FAZENDO DISTRIBUIÇÕES
+1. Acesse "Distribuição"
+2. Selecione o beneficiário
+3. Verifique o limite mensal disponível
+4. Escolha os itens para distribuir
+5. Confirme a distribuição
+6. Sistema atualiza estoque e limite automaticamente
+
+================================================================================
+10. SEGURANÇA E AUDITORIA
+================================================================================
+
+10.1 AUTENTICAÇÃO
+- Sistema seguro com Supabase Auth
+- Senhas criptografadas
+- Sessões com timeout automático
+- Controle de acesso baseado em papéis
+
+10.2 AUTORIZAÇÃO
+- Row Level Security (RLS) no banco de dados
+- Permissões granulares por funcionalidade
+- Proteção de rotas no frontend
+- Validação de permissões no backend
+
+10.3 AUDITORIA
+- Logs completos de todas as operações
+- Registro automático de ações dos usuários
+- Rastreabilidade completa (quem, o quê, quando)
+- Histórico de alterações em registros importantes
+
+10.4 BACKUP E RECUPERAÇÃO
+- Backup automático do Supabase
+- Replicação de dados em múltiplas regiões
+- Recuperação point-in-time
+- Exportação manual de dados
+
+10.5 CRIPTOGRAFIA
+- Dados sensíveis criptografados
+- Comunicação HTTPS obrigatória
+- Tokens de sessão seguros
+- Proteção contra ataques comuns
+
+================================================================================
+11. MANUTENÇÃO E SUPORTE
+================================================================================
+
+11.1 MONITORAMENTO
+- Acompanhe logs de erro no console do navegador
+- Monitore performance através do Supabase Dashboard
+- Verifique estatísticas de uso regularmente
+- Observe alertas de estoque baixo
+
+11.2 ATUALIZAÇÕES
+- Mantenha dependências atualizadas
+- Execute npm audit para verificar vulnerabilidades
+- Teste em ambiente de desenvolvimento antes de produção
+- Faça backup antes de grandes atualizações
+
+11.3 PROBLEMAS COMUNS
+PROBLEMA: Erro de conexão com banco
+SOLUÇÃO: Verifique credenciais no .env.local
+
+PROBLEMA: Página em branco após login
+SOLUÇÃO: Verifique console do navegador para erros JavaScript
+
+PROBLEMA: Doação não aparece no estoque
+SOLUÇÃO: Verifique se a doação foi processada
+
+PROBLEMA: Beneficiário não consegue receber distribuição
+SOLUÇÃO: Verifique limite mensal e status do beneficiário
+
+11.4 CONTATO PARA SUPORTE
+- Desenvolvedor: Rafael Vieira / Luiz Altissimo
+- GitHub: https://github.com/LuizAltissimo/Sistema_Sanem
+- Issues: Reporte problemas no GitHub Issues
+
+11.5 LOGS E DEPURAÇÃO
+- Console do navegador: F12 -> Console
+- Network tab: Para problemas de requisições
+- Supabase Dashboard: Para problemas de banco
+- Audit logs: Para rastrear ações de usuários
+
+================================================================================
+CONCLUSÃO
+================================================================================
+
+O Sistema SANEM foi desenvolvido para facilitar o trabalho de organizações 
+sociais, oferecendo uma solução completa e integrada para gestão de doações, 
+beneficiários e distribuição de recursos.
+
+Com interface moderna, controles automatizados e sistema de auditoria completo, 
+o SANEM permite que organizações foquem no que realmente importa: ajudar pessoas 
+em situação de vulnerabilidade social.
+
+O sistema é escalável, seguro e pode ser adaptado às necessidades específicas 
+de cada organização.
+
+================================================================================
+VERSÃO DA DOCUMENTAÇÃO: 1.0
+DATA: Janeiro 2025
+AUTOR: Rafael Vieira / Luiz Altissimo
+================================================================================ 

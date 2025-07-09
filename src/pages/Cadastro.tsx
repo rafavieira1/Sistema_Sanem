@@ -5,17 +5,19 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, UserPlus, Heart, Briefcase } from "lucide-react";
+import { Users, UserPlus, Heart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { GridBackground } from "@/components/ui/grid-background";
 import { supabase } from "@/integrations/supabase/client";
+import { ROUTES } from "@/constants";
 
 const Cadastro = () => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("beneficiario");
@@ -26,23 +28,14 @@ const Cadastro = () => {
   const [selectedParentesco, setSelectedParentesco] = useState("");
   const [selectedTipoDoador, setSelectedTipoDoador] = useState("");
   const [selectedFrequencia, setSelectedFrequencia] = useState("");
-  const [selectedFuncao, setSelectedFuncao] = useState("");
-  const [selectedDisponibilidade, setSelectedDisponibilidade] = useState("");
-
-  // Verificar se usuário é super admin
-  const isSuperAdmin = user?.role === "superadmin";
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
     const tabFromUrl = searchParams.get("tab");
-    if (tabFromUrl && ["beneficiario", "dependente", "doador", "voluntario"].includes(tabFromUrl)) {
-      // Se não é super admin e está tentando acessar aba de voluntário, redireciona para beneficiário
-      if (tabFromUrl === "voluntario" && !isSuperAdmin) {
-        setActiveTab("beneficiario");
-      } else {
-        setActiveTab(tabFromUrl);
-      }
+    if (tabFromUrl && ["beneficiario", "dependente", "doador"].includes(tabFromUrl)) {
+      setActiveTab(tabFromUrl);
     }
-  }, [searchParams, isSuperAdmin]);
+  }, [searchParams]);
 
   // Carregar beneficiários para o formulário de dependentes
   useEffect(() => {
@@ -97,11 +90,17 @@ const Cadastro = () => {
 
         toast({
           title: "✅ Beneficiário cadastrado!",
-          description: `${beneficiarioData.nome} foi cadastrado(a) com sucesso.`,
+          description: `${beneficiarioData.nome} foi cadastrado(a) com sucesso. Redirecionando para a lista de beneficiários...`,
         });
 
         // Limpar formulário
         (e.target as HTMLFormElement).reset();
+        
+        // Navegar para a página de beneficiários
+        setIsRedirecting(true);
+        setTimeout(() => {
+          navigate(ROUTES.BENEFICIARIOS);
+        }, 1500);
         
       } else if (tipo === "Dependente") {
         if (!selectedBeneficiario) {
@@ -147,13 +146,19 @@ const Cadastro = () => {
 
         toast({
           title: "✅ Dependente cadastrado!",
-          description: `${dependenteData.nome} foi cadastrado(a) com sucesso.`,
+          description: `${dependenteData.nome} foi cadastrado(a) com sucesso. Redirecionando para a lista de beneficiários...`,
         });
 
         // Limpar formulário e estados
         (e.target as HTMLFormElement).reset();
         setSelectedBeneficiario("");
         setSelectedParentesco("");
+        
+        // Navegar para a página de beneficiários (onde dependentes são mostrados)
+        setIsRedirecting(true);
+        setTimeout(() => {
+          navigate(ROUTES.BENEFICIARIOS);
+        }, 1500);
 
       } else if (tipo === "Doador") {
         const doadorData = {
@@ -176,42 +181,20 @@ const Cadastro = () => {
 
         toast({
           title: "✅ Doador cadastrado!",
-          description: `${doadorData.nome} foi cadastrado(a) com sucesso.`,
+          description: `${doadorData.nome} foi cadastrado(a) com sucesso. Redirecionando para a página de doações...`,
         });
 
         // Limpar formulário e estados
         (e.target as HTMLFormElement).reset();
         setSelectedTipoDoador("");
         setSelectedFrequencia("");
+        
+        // Navegar para a página de doações (onde doadores são gerenciados)
+        setIsRedirecting(true);
+        setTimeout(() => {
+          navigate(ROUTES.DOACOES);
+        }, 1500);
 
-      } else if (tipo === "Voluntário") {
-        // Para voluntários, vamos criar um usuário no sistema
-        const voluntarioData = {
-          name: formData.get('nome-voluntario') as string,
-          email: formData.get('email-voluntario') as string,
-          password_hash: 'temp_password_hash', // Senha temporária que deve ser alterada
-          role: 'voluntario' as const,
-          status: 'Ativo'
-        };
-
-        const { data, error } = await supabase
-          .from('users')
-          .insert([voluntarioData])
-          .select();
-
-        if (error) {
-          throw error;
-        }
-
-        toast({
-          title: "✅ Voluntário cadastrado!",
-          description: `${voluntarioData.name} foi cadastrado(a) com sucesso. Uma senha temporária foi criada.`,
-        });
-
-        // Limpar formulário e estados
-        (e.target as HTMLFormElement).reset();
-        setSelectedFuncao("");
-        setSelectedDisponibilidade("");
       }
     } catch (error) {
       console.error('Erro ao cadastrar:', error);
@@ -222,6 +205,7 @@ const Cadastro = () => {
       });
     } finally {
       setIsLoading(false);
+      setIsRedirecting(false);
     }
   };
 
@@ -232,12 +216,12 @@ const Cadastro = () => {
           
           <div>
             <h1 className="text-3xl font-bold text-foreground">Cadastro de Pessoas</h1>
-            <p className="text-muted-foreground">Gerencie doadores, voluntários, beneficiários e dependentes</p>
+            <p className="text-muted-foreground">Gerencie doadores, beneficiários e dependentes</p>
           </div>
         </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className={`grid w-full ${isSuperAdmin ? 'grid-cols-4' : 'grid-cols-3'}`}>
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="beneficiario" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Beneficiário
@@ -250,12 +234,6 @@ const Cadastro = () => {
             <Heart className="h-4 w-4" />
             Doador
           </TabsTrigger>
-          {isSuperAdmin && (
-            <TabsTrigger value="voluntario" className="flex items-center gap-2">
-              <Briefcase className="h-4 w-4" />
-              Voluntário
-            </TabsTrigger>
-          )}
         </TabsList>
 
         {/* Cadastro de Beneficiário */}
@@ -347,9 +325,9 @@ const Cadastro = () => {
                 <Button 
                   type="submit" 
                   className="w-full bg-blue-600 hover:bg-blue-700"
-                  disabled={isLoading}
+                  disabled={isLoading || isRedirecting}
                 >
-                  {isLoading ? "Cadastrando..." : "Cadastrar Beneficiário"}
+                  {isLoading ? "Cadastrando..." : isRedirecting ? "Redirecionando..." : "Cadastrar Beneficiário"}
                 </Button>
               </form>
             </CardContent>
@@ -435,9 +413,9 @@ const Cadastro = () => {
                 <Button 
                   type="submit" 
                   className="w-full bg-green-600 hover:bg-green-700"
-                  disabled={isLoading}
+                  disabled={isLoading || isRedirecting}
                 >
-                  {isLoading ? "Cadastrando..." : "Cadastrar Dependente"}
+                  {isLoading ? "Cadastrando..." : isRedirecting ? "Redirecionando..." : "Cadastrar Dependente"}
                 </Button>
               </form>
             </CardContent>
@@ -517,110 +495,16 @@ const Cadastro = () => {
                 <Button 
                   type="submit" 
                   className="w-full bg-red-600 hover:bg-red-700"
-                  disabled={isLoading}
+                  disabled={isLoading || isRedirecting}
                 >
-                  {isLoading ? "Cadastrando..." : "Cadastrar Doador"}
+                  {isLoading ? "Cadastrando..." : isRedirecting ? "Redirecionando..." : "Cadastrar Doador"}
                 </Button>
               </form>
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* Cadastro de Voluntário - Apenas para Super Admins */}
-        {isSuperAdmin && (
-          <TabsContent value="voluntario">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Briefcase className="h-5 w-5" />
-                  Cadastro de Voluntário
-                </CardTitle>
-                <CardDescription>
-                  Registre novos voluntários para trabalhar na SANEM
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={(e) => handleSubmit(e, "Voluntário")} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="nome-voluntario">Nome Completo *</Label>
-                      <Input id="nome-voluntario" name="nome-voluntario" placeholder="Digite o nome completo" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="cpf-voluntario">CPF *</Label>
-                      <Input id="cpf-voluntario" name="cpf-voluntario" placeholder="000.000.000-00" required />
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="telefone-voluntario">Telefone *</Label>
-                      <Input id="telefone-voluntario" name="telefone-voluntario" placeholder="(11) 99999-9999" required />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email-voluntario">E-mail *</Label>
-                      <Input id="email-voluntario" name="email-voluntario" type="email" placeholder="email@exemplo.com" required />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="funcao">Função/Área de Atuação</Label>
-                      <Select value={selectedFuncao} onValueChange={setSelectedFuncao}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione a função" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="atendimento">Atendimento</SelectItem>
-                          <SelectItem value="organizacao">Organização</SelectItem>
-                          <SelectItem value="administrativa">Administrativa</SelectItem>
-                          <SelectItem value="geral">Geral</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="disponibilidade">Disponibilidade</Label>
-                      <Select value={selectedDisponibilidade} onValueChange={setSelectedDisponibilidade}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecione" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="manha">Manhã</SelectItem>
-                          <SelectItem value="tarde">Tarde</SelectItem>
-                          <SelectItem value="noite">Noite</SelectItem>
-                          <SelectItem value="fins-semana">Fins de Semana</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="endereco-voluntario">Endereço</Label>
-                    <Input id="endereco-voluntario" name="endereco-voluntario" placeholder="Rua, número, bairro, cidade - CEP" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="experiencia">Experiência/Habilidades</Label>
-                    <Textarea 
-                      id="experiencia" 
-                      name="experiencia"
-                      placeholder="Descreva experiências anteriores e habilidades relevantes"
-                      rows={3}
-                    />
-                  </div>
-
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-purple-600 hover:bg-purple-700"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Cadastrando..." : "Cadastrar Voluntário"}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
       </Tabs>
       </main>
     </GridBackground>

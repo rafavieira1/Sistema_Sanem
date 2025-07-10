@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Gift, Plus, Calendar, Package, User, CheckCircle, Clock, TrendingUp, X, Eye, Settings, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { GridBackground } from "@/components/ui/grid-background";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,6 +50,7 @@ interface Doacao {
 
 const Doacoes = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [doadores, setDoadores] = useState<Doador[]>([]);
@@ -318,7 +320,8 @@ const Doacoes = () => {
         tipo_doacao: tipoDoacao,
         valor_total: valorTotal,
         observacoes: formData.get('observacoes') as string || null,
-        status: 'Pendente'
+        status: 'Pendente',
+        created_by: user?.id
       };
 
       const { data: doacaoInserida, error: doacaoError } = await supabase
@@ -568,7 +571,8 @@ const Doacoes = () => {
         quantidade_nova: quantidadeNova,
         motivo,
         referencia_id: referenciaId,
-        referencia_tipo: referenciaTipo
+        referencia_tipo: referenciaTipo,
+        created_by: user?.id
       }]);
 
     if (error) throw error;

@@ -352,7 +352,7 @@ const Cadastro = () => {
                   <Label htmlFor="beneficiario-responsavel">Beneficiário Responsável *</Label>
                   <Select value={selectedBeneficiario} onValueChange={setSelectedBeneficiario}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecione o beneficiário responsável" />
+                      <SelectValue placeholder={beneficiarios.length === 0 ? "Nenhum beneficiário ativo encontrado" : "Selecione o beneficiário responsável"} />
                     </SelectTrigger>
                     <SelectContent>
                       {beneficiarios.map((beneficiario) => (
@@ -360,11 +360,6 @@ const Cadastro = () => {
                           {beneficiario.nome}
                         </SelectItem>
                       ))}
-                      {beneficiarios.length === 0 && (
-                        <SelectItem value="" disabled>
-                          Nenhum beneficiário ativo encontrado
-                        </SelectItem>
-                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -448,8 +443,10 @@ const Cadastro = () => {
                         <SelectValue placeholder="Selecione o tipo" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="pessoa-fisica">Pessoa Física</SelectItem>
-                        <SelectItem value="pessoa-juridica">Pessoa Jurídica</SelectItem>
+                        <SelectItem value="Pessoa Física">Pessoa Física</SelectItem>
+                        <SelectItem value="Pessoa Jurídica">Pessoa Jurídica</SelectItem>
+                        <SelectItem value="Empresa">Empresa</SelectItem>
+                        <SelectItem value="Organização">Organização</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

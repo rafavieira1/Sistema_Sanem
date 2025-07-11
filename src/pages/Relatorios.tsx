@@ -8,6 +8,7 @@ import { FileText, Download, Calendar, Filter, BarChart, TrendingUp, Users, Pack
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { GridBackground } from "@/components/ui/grid-background";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 
 const Relatorios = () => {
   const { hasPermission } = useAuth();
@@ -126,49 +127,97 @@ const Relatorios = () => {
         </div>
 
       {/* Resumo Rápido */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Package className="h-8 w-8 text-green-600 dark:text-green-400" />
-              <div>
-                <p className="text-2xl font-bold text-foreground">{dadosReais.resumoMensal.doacoes}</p>
-                <p className="text-sm text-muted-foreground">Doações Este Mês</p>
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <Card className="relative hover:shadow-lg transition-all duration-300 hover:shadow-primary/20 overflow-hidden">
+          <GlowingEffect 
+            disabled={false}
+            proximity={100}
+            spread={30}
+            blur={2}
+            movementDuration={1.5}
+            borderWidth={2}
+            className="z-10"
+          />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-20">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Doações Este Mês
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20">
+              <Package className="h-4 w-4 text-green-600 dark:text-green-400" />
             </div>
+          </CardHeader>
+          <CardContent className="relative z-20">
+            <div className="text-2xl font-bold text-foreground">{dadosReais.resumoMensal.doacoes}</div>
+            <p className="text-xs text-muted-foreground mt-1">Registradas no período</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-              <div>
-                <p className="text-2xl font-bold text-foreground">{dadosReais.resumoMensal.distribuicoes}</p>
-                <p className="text-sm text-muted-foreground">Distribuições</p>
-              </div>
+        <Card className="relative hover:shadow-lg transition-all duration-300 hover:shadow-primary/20 overflow-hidden">
+          <GlowingEffect 
+            disabled={false}
+            proximity={100}
+            spread={30}
+            blur={2}
+            movementDuration={1.5}
+            borderWidth={2}
+            className="z-10"
+          />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-20">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Distribuições
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+              <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
+          </CardHeader>
+          <CardContent className="relative z-20">
+            <div className="text-2xl font-bold text-foreground">{dadosReais.resumoMensal.distribuicoes}</div>
+            <p className="text-xs text-muted-foreground mt-1">Realizadas no período</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <Users className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-              <div>
-                <p className="text-2xl font-bold text-foreground">{dadosReais.resumoMensal.beneficiariosAtendidos}</p>
-                <p className="text-sm text-muted-foreground">Beneficiários</p>
-              </div>
+        <Card className="relative hover:shadow-lg transition-all duration-300 hover:shadow-primary/20 overflow-hidden">
+          <GlowingEffect 
+            disabled={false}
+            proximity={100}
+            spread={30}
+            blur={2}
+            movementDuration={1.5}
+            borderWidth={2}
+            className="z-10"
+          />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-20">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Beneficiários
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20">
+              <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             </div>
+          </CardHeader>
+          <CardContent className="relative z-20">
+            <div className="text-2xl font-bold text-foreground">{dadosReais.resumoMensal.beneficiariosAtendidos}</div>
+            <p className="text-xs text-muted-foreground mt-1">Atendidos no período</p>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2">
-              <BarChart className="h-8 w-8 text-orange-600 dark:text-orange-400" />
-              <div>
-                <p className="text-2xl font-bold text-foreground">{dadosReais.resumoMensal.itensMovimentados}</p>
-                <p className="text-sm text-muted-foreground">Itens Movimentados</p>
-              </div>
+        <Card className="relative hover:shadow-lg transition-all duration-300 hover:shadow-primary/20 overflow-hidden">
+          <GlowingEffect 
+            disabled={false}
+            proximity={100}
+            spread={30}
+            blur={2}
+            movementDuration={1.5}
+            borderWidth={2}
+            className="z-10"
+          />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-20">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Itens Movimentados
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-orange-50 dark:bg-orange-900/20">
+              <BarChart className="h-4 w-4 text-orange-600 dark:text-orange-400" />
             </div>
+          </CardHeader>
+          <CardContent className="relative z-20">
+            <div className="text-2xl font-bold text-foreground">{dadosReais.resumoMensal.itensMovimentados}</div>
+            <p className="text-xs text-muted-foreground mt-1">Total movimentado</p>
           </CardContent>
         </Card>
       </div>
@@ -176,8 +225,17 @@ const Relatorios = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Gerador de Relatórios */}
         <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
+          <Card className="relative overflow-hidden">
+            <GlowingEffect 
+              disabled={false}
+              proximity={80}
+              spread={25}
+              blur={1}
+              movementDuration={2}
+              borderWidth={1}
+              className="z-10"
+            />
+            <CardHeader className="relative z-20">
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
                 Gerar Relatório Personalizado
@@ -186,7 +244,7 @@ const Relatorios = () => {
                 Configure os parâmetros para gerar seu relatório
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 relative z-20">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="tipo-relatorio">Tipo de Relatório *</Label>
@@ -260,14 +318,23 @@ const Relatorios = () => {
           </Card>
 
           {/* Relatórios Disponíveis */}
-          <Card className="mt-6">
-            <CardHeader>
+          <Card className="mt-6 relative overflow-hidden">
+            <GlowingEffect 
+              disabled={false}
+              proximity={80}
+              spread={25}
+              blur={1}
+              movementDuration={2}
+              borderWidth={1}
+              className="z-10"
+            />
+            <CardHeader className="relative z-20">
               <CardTitle>Relatórios Disponíveis</CardTitle>
               <CardDescription>
                 Escolha entre os relatórios pré-configurados para o seu nível de acesso
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="relative z-20">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {filteredRelatorios.map((relatorio) => (
                   <div key={relatorio.id} className="p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
@@ -298,12 +365,21 @@ const Relatorios = () => {
         {/* Análises Rápidas */}
         <div className="space-y-6">
           {/* Top Beneficiários */}
-          <Card>
-            <CardHeader>
+          <Card className="relative overflow-hidden">
+            <GlowingEffect 
+              disabled={false}
+              proximity={80}
+              spread={25}
+              blur={1}
+              movementDuration={2}
+              borderWidth={1}
+              className="z-10"
+            />
+            <CardHeader className="relative z-20">
               <CardTitle className="text-lg">Top Beneficiários</CardTitle>
               <CardDescription>Mais atendidos este mês</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="relative z-20">
               {dadosReais.topBeneficiarios.length === 0 ? (
                 <div className="text-center py-8">
                   <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -333,12 +409,21 @@ const Relatorios = () => {
           </Card>
 
           {/* Categorias Mais Doadas */}
-          <Card>
-            <CardHeader>
+          <Card className="relative overflow-hidden">
+            <GlowingEffect 
+              disabled={false}
+              proximity={80}
+              spread={25}
+              blur={1}
+              movementDuration={2}
+              borderWidth={1}
+              className="z-10"
+            />
+            <CardHeader className="relative z-20">
               <CardTitle className="text-lg">Categorias Mais Doadas</CardTitle>
               <CardDescription>Distribuição por tipo</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="relative z-20">
               {dadosReais.categoriasMaisDoadas.length === 0 ? (
                 <div className="text-center py-8">
                   <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -372,11 +457,20 @@ const Relatorios = () => {
           </Card>
 
           {/* Ações Rápidas */}
-          <Card>
-            <CardHeader>
+          <Card className="relative overflow-hidden">
+            <GlowingEffect 
+              disabled={false}
+              proximity={80}
+              spread={25}
+              blur={1}
+              movementDuration={2}
+              borderWidth={1}
+              className="z-10"
+            />
+            <CardHeader className="relative z-20">
               <CardTitle className="text-lg">Ações Rápidas</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="relative z-20">
               <div className="space-y-2">
                 <Button variant="outline" size="sm" className="w-full justify-start">
                   <FileText className="h-4 w-4 mr-2" />

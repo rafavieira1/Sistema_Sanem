@@ -9,7 +9,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Share2, Plus, User, Package, Calendar, AlertCircle, CheckCircle, Eye, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { GridBackground } from "@/components/ui/grid-background";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Beneficiario {
@@ -83,6 +85,7 @@ interface ItemDistribuicao {
 
 const Distribuicao = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   
@@ -385,7 +388,8 @@ const Distribuicao = () => {
           data_distribuicao: dataDistribuicao,
           observacoes: observacoes || null,
           valor_total: null,
-          status: 'Concluída'
+          status: 'Concluída',
+          created_by: user?.id
         })
         .select()
         .single();
@@ -437,7 +441,8 @@ const Distribuicao = () => {
             quantidade_nova: item.quantidade_disponivel - item.quantidade,
             motivo: 'Distribuição para beneficiário',
             referencia_id: novaDistribuicao.id,
-            referencia_tipo: 'distribuicao'
+            referencia_tipo: 'distribuicao',
+            created_by: user?.id
           });
       }
 
@@ -529,7 +534,8 @@ const Distribuicao = () => {
             quantidade_nova: produtoAtual.quantidade_estoque + item.quantidade,
             motivo: 'Cancelamento de distribuição',
             referencia_id: distribuicaoParaCancelar.id,
-            referencia_tipo: 'cancelamento_distribuicao'
+            referencia_tipo: 'cancelamento_distribuicao',
+            created_by: user?.id
           });
       }
 
@@ -620,8 +626,17 @@ const Distribuicao = () => {
 
         {/* Estatísticas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="hover:shadow-lg transition-all duration-300 hover:shadow-primary/20">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Card className="relative hover:shadow-lg transition-all duration-300 hover:shadow-primary/20 overflow-hidden">
+            <GlowingEffect 
+              disabled={false}
+              proximity={100}
+              spread={30}
+              blur={2}
+              movementDuration={1.5}
+              borderWidth={2}
+              className="z-10"
+            />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-20">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Distribuições Este Mês
               </CardTitle>
@@ -629,14 +644,23 @@ const Distribuicao = () => {
                 <Share2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="relative z-20">
               <div className="text-2xl font-bold text-foreground">{estatisticas.distribuicoesEsteMes}</div>
               <p className="text-xs text-muted-foreground mt-1">Este mês</p>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-all duration-300 hover:shadow-primary/20">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Card className="relative hover:shadow-lg transition-all duration-300 hover:shadow-primary/20 overflow-hidden">
+            <GlowingEffect 
+              disabled={false}
+              proximity={100}
+              spread={30}
+              blur={2}
+              movementDuration={1.5}
+              borderWidth={2}
+              className="z-10"
+            />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-20">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Itens Distribuídos
               </CardTitle>
@@ -644,14 +668,23 @@ const Distribuicao = () => {
                 <Package className="h-4 w-4 text-green-600 dark:text-green-400" />
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="relative z-20">
               <div className="text-2xl font-bold text-foreground">{estatisticas.itensDistribuidos}</div>
               <p className="text-xs text-muted-foreground mt-1">Total de itens</p>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-all duration-300 hover:shadow-primary/20">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Card className="relative hover:shadow-lg transition-all duration-300 hover:shadow-primary/20 overflow-hidden">
+            <GlowingEffect 
+              disabled={false}
+              proximity={100}
+              spread={30}
+              blur={2}
+              movementDuration={1.5}
+              borderWidth={2}
+              className="z-10"
+            />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-20">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Beneficiários Atendidos
               </CardTitle>
@@ -659,14 +692,23 @@ const Distribuicao = () => {
                 <User className="h-4 w-4 text-purple-600 dark:text-purple-400" />
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="relative z-20">
               <div className="text-2xl font-bold text-foreground">{estatisticas.beneficiariosAtendidos}</div>
               <p className="text-xs text-muted-foreground mt-1">Pessoas atendidas</p>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-all duration-300 hover:shadow-primary/20">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <Card className="relative hover:shadow-lg transition-all duration-300 hover:shadow-primary/20 overflow-hidden">
+            <GlowingEffect 
+              disabled={false}
+              proximity={100}
+              spread={30}
+              blur={2}
+              movementDuration={1.5}
+              borderWidth={2}
+              className="z-10"
+            />
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-20">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Próximos ao Limite
               </CardTitle>
@@ -674,7 +716,7 @@ const Distribuicao = () => {
                 <AlertCircle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="relative z-20">
               <div className="text-2xl font-bold text-foreground">{estatisticas.proximosAoLimite}</div>
               <p className="text-xs text-muted-foreground mt-1">Precisam atenção</p>
             </CardContent>

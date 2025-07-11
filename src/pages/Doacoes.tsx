@@ -709,33 +709,41 @@ const Doacoes = () => {
     const doacoesProcessadasMes = doacoesEsteMes.filter(doacao => doacao.status === 'Processada');
     const valorTotalMes = doacoesProcessadasMes.reduce((total, doacao) => total + (doacao.valor_total || 0), 0);
     
-    // Debug temporário
-    console.log('Debug Estatísticas:', {
-      totalDoacoes: doacoes.length,
-      doacoesEsteMes: doacoesEsteMes.length,
-      doacoesProcessadasMes: doacoesProcessadasMes.length,
-      valorTotalMes,
-      doacoesProcessadas: doacoesProcessadasMes.map(d => ({ 
-        id: d.id, 
-        valor: d.valor_total, 
-        status: d.status, 
-        data: d.data_doacao 
-      }))
-    });
+    // Total de dinheiro recebido (histórico completo) - apenas doações de dinheiro processadas
+    const totalDinheiroRecebido = doacoes
+      .filter(doacao => doacao.status === 'Processada' && doacao.tipo_doacao === 'Dinheiro')
+      .reduce((total, doacao) => total + (doacao.valor_total || 0), 0);
+    
+    // Dinheiro recebido este mês - apenas doações de dinheiro processadas
+    const dinheiroRecebidoMes = doacoesEsteMes
+      .filter(doacao => doacao.status === 'Processada' && doacao.tipo_doacao === 'Dinheiro')
+      .reduce((total, doacao) => total + (doacao.valor_total || 0), 0);
+    
 
-    // Total de itens recebidos este mês
+
+    // Total de itens recebidos este mês (excluindo doações de dinheiro)
     const itensRecebidosMes = doacoesEsteMes
-      .filter(doacao => doacao.status === 'Processada')
+      .filter(doacao => doacao.status === 'Processada' && doacao.tipo_doacao !== 'Dinheiro')
       .reduce((total, doacao) => {
         const totalItens = doacao.itens_doacao?.reduce((sum, item) => sum + item.quantidade, 0) || 0;
         return total + totalItens;
       }, 0);
 
-    // Doações processadas este mês
-    const processadasMes = doacoesEsteMes.filter(doacao => doacao.status === 'Processada').length;
+    // Total histórico de itens recebidos (excluindo doações de dinheiro)
+    const totalItensRecebidos = doacoes
+      .filter(doacao => doacao.status === 'Processada' && doacao.tipo_doacao !== 'Dinheiro')
+      .reduce((total, doacao) => {
+        const totalItens = doacao.itens_doacao?.reduce((sum, item) => sum + item.quantidade, 0) || 0;
+        return total + totalItens;
+      }, 0);
+
+
 
     // Doações pendentes (geral, não só deste mês)
     const pendentesMes = doacoes.filter(doacao => doacao.status === 'Pendente').length;
+    
+    // Total geral de doações processadas (todas as datas)
+    const totalProcessadas = doacoes.filter(doacao => doacao.status === 'Processada').length;
 
     // Calcular crescimento vs mês anterior
     const mesAnterior = new Date(agora.getFullYear(), agora.getMonth() - 1, 1);
@@ -757,9 +765,12 @@ const Doacoes = () => {
     return {
       valorTotalMes,
       itensRecebidosMes,
-      processadasMes,
       pendentesMes,
-      crescimento: parseFloat(crescimento)
+      totalProcessadas,
+      crescimento: parseFloat(crescimento),
+      totalDinheiroRecebido,
+      dinheiroRecebidoMes,
+      totalItensRecebidos
     };
   };
 
@@ -790,7 +801,7 @@ const Doacoes = () => {
           />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-20">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Este Mês
+              Total Dinheiro
             </CardTitle>
             <div className="p-2 rounded-lg bg-green-50 dark:bg-green-900/20">
               <Gift className="h-4 w-4 text-green-600 dark:text-green-400" />
@@ -798,16 +809,10 @@ const Doacoes = () => {
           </CardHeader>
           <CardContent className="relative z-20">
             <div className="text-2xl font-bold text-foreground">
-              R$ {estatisticas.valorTotalMes.toFixed(2)}
+              R$ {estatisticas.totalDinheiroRecebido.toFixed(2)}
             </div>
-            <p className={`text-xs mt-1 ${
-              estatisticas.crescimento > 0 
-                ? 'text-green-600' 
-                : estatisticas.crescimento < 0 
-                  ? 'text-red-600' 
-                  : 'text-muted-foreground'
-            }`}>
-              {estatisticas.crescimento >= 0 ? '+' : ''}{estatisticas.crescimento}% vs mês anterior
+            <p className="text-xs text-muted-foreground mt-1">
+              R$ {estatisticas.dinheiroRecebidoMes.toFixed(2)} este mês
             </p>
           </CardContent>
         </Card>
@@ -824,39 +829,15 @@ const Doacoes = () => {
           />
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-20">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Itens Recebidos
+              Total Itens
             </CardTitle>
             <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
               <Package className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
           </CardHeader>
           <CardContent className="relative z-20">
-            <div className="text-2xl font-bold text-foreground">{estatisticas.itensRecebidosMes}</div>
-            <p className="text-xs text-muted-foreground mt-1">Este mês</p>
-          </CardContent>
-        </Card>
-
-        <Card className="relative hover:shadow-lg transition-all duration-300 hover:shadow-primary/20 overflow-hidden">
-          <GlowingEffect 
-            disabled={false}
-            proximity={100}
-            spread={30}
-            blur={2}
-            movementDuration={1.5}
-            borderWidth={2}
-            className="z-10"
-          />
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-20">
-            <CardTitle className="text-sm font-medium text-muted-foreground">
-              Processadas
-            </CardTitle>
-            <div className="p-2 rounded-lg bg-purple-50 dark:bg-purple-900/20">
-              <TrendingUp className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-            </div>
-          </CardHeader>
-          <CardContent className="relative z-20">
-            <div className="text-2xl font-bold text-foreground">{estatisticas.processadasMes}</div>
-            <p className="text-xs text-muted-foreground mt-1">Concluídas</p>
+            <div className="text-2xl font-bold text-foreground">{estatisticas.totalItensRecebidos}</div>
+            <p className="text-xs text-muted-foreground mt-1">{estatisticas.itensRecebidosMes} este mês</p>
           </CardContent>
         </Card>
 
@@ -881,6 +862,30 @@ const Doacoes = () => {
           <CardContent className="relative z-20">
             <div className="text-2xl font-bold text-foreground">{estatisticas.pendentesMes}</div>
             <p className="text-xs text-muted-foreground mt-1">Aguardando</p>
+          </CardContent>
+        </Card>
+
+        <Card className="relative hover:shadow-lg transition-all duration-300 hover:shadow-primary/20 overflow-hidden">
+          <GlowingEffect 
+            disabled={false}
+            proximity={100}
+            spread={30}
+            blur={2}
+            movementDuration={1.5}
+            borderWidth={2}
+            className="z-10"
+          />
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-20">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              Total Processadas
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
+              <CheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            </div>
+          </CardHeader>
+          <CardContent className="relative z-20">
+            <div className="text-2xl font-bold text-foreground">{estatisticas.totalProcessadas}</div>
+            <p className="text-xs text-muted-foreground mt-1">Histórico completo</p>
           </CardContent>
         </Card>
       </div>

@@ -34,7 +34,14 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path={ROUTES.HOME} element={<Index />} />
-                <Route path="/cadastro" element={<Index />} />
+                <Route path="/cadastro" element={
+                  <ProtectedRoute requiredPermission="manage_beneficiaries">
+                    <div className="min-h-screen flex w-full">
+                      <AppSidebar />
+                      <Cadastro />
+                    </div>
+                  </ProtectedRoute>
+                } />
                 <Route 
                   path={ROUTES.DASHBOARD}
                   element={

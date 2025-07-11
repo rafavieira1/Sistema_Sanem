@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Package, Search, Filter, TrendingDown, TrendingUp, AlertTriangle, AlertCircle, Plus, History, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { GridBackground } from "@/components/ui/grid-background";
@@ -28,7 +29,6 @@ interface Produto {
   valor_estimado: number | null;
   tamanho: string | null;
   condicao: string | null;
-  observacoes?: string | null;
   cor?: string | null;
   created_at: string;
   updated_at: string | null;
@@ -69,6 +69,7 @@ const Estoque = () => {
   const [processandoAjuste, setProcessandoAjuste] = useState(false);
   
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const filteredItens = produtos.filter(produto => {
     const matchesSearch = produto.nome?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -174,8 +175,7 @@ const Estoque = () => {
         quantidade_estoque: parseInt(formData.get('quantidade') as string),
         quantidade_minima: parseInt(formData.get('minimo') as string),
         tamanho: selectedTamanho || null,
-        condicao: selectedCondicao || null,
-        observacoes: formData.get('observacoes') as string || null
+        condicao: selectedCondicao || null
       };
 
       const { error } = await supabase
@@ -502,13 +502,14 @@ const Estoque = () => {
           <h2 className="text-xl font-semibold text-foreground">
             Itens em Estoque ({filteredItens.length})
           </h2>
-          <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-green-600 hover:bg-green-700">
-                <Plus className="h-4 w-4 mr-2" />
-                Adicionar Item Manual
-              </Button>
-            </DialogTrigger>
+          {user?.role === 'superadmin' && (
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-green-600 hover:bg-green-700">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Adicionar Item Manual
+                </Button>
+              </DialogTrigger>
             <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>Adicionar Item ao Estoque</DialogTitle>
@@ -612,6 +613,7 @@ const Estoque = () => {
               </form>
             </DialogContent>
           </Dialog>
+          )}
         </div>
 
         <div className="grid gap-4">

@@ -113,20 +113,20 @@ const Dashboard = () => {
 
     const itensAdicionadosEstaSemana = movimentacoesEntrada?.reduce((sum, mov) => sum + (mov.quantidade || 0), 0) || 0;
 
-    // Doações este mês
+    // Doações este mês (usando data_doacao para consistência com a página de doações)
     const { count: doacoesEsteMes } = await supabase
       .from('doacoes')
       .select('*', { count: 'exact' })
       .eq('status', 'Processada')
-      .gte('created_at', firstDayOfMonth.toISOString());
+      .gte('data_doacao', firstDayOfMonth.toISOString().split('T')[0]);
 
     // Doações mês passado para calcular crescimento
     const { count: doacoesMesPassado } = await supabase
       .from('doacoes')
       .select('*', { count: 'exact' })
       .eq('status', 'Processada')
-      .gte('created_at', firstDayOfLastMonth.toISOString())
-      .lte('created_at', lastDayOfLastMonth.toISOString());
+      .gte('data_doacao', firstDayOfLastMonth.toISOString().split('T')[0])
+      .lte('data_doacao', lastDayOfLastMonth.toISOString().split('T')[0]);
 
     const crescimentoDoacoes = doacoesMesPassado ? 
       Math.round(((doacoesEsteMes || 0) - doacoesMesPassado) / doacoesMesPassado * 100) : 0;
@@ -162,7 +162,7 @@ const Dashboard = () => {
   const fetchRecentActivities = async () => {
     const activities: RecentActivity[] = [];
 
-    // Últimas 5 doações
+    // Últimas 2 doações
     const { data: doacoes } = await supabase
       .from('doacoes')
       .select(`
@@ -171,7 +171,7 @@ const Dashboard = () => {
         doadores!inner(nome)
       `)
       .order('created_at', { ascending: false })
-      .limit(3);
+      .limit(2);
 
     doacoes?.forEach(doacao => {
       activities.push({
@@ -184,7 +184,7 @@ const Dashboard = () => {
       });
     });
 
-    // Últimas 5 distribuições
+    // Últimas 2 distribuições
     const { data: distribuicoes } = await supabase
       .from('distribuicoes')
       .select(`
@@ -193,7 +193,7 @@ const Dashboard = () => {
         beneficiarios!inner(nome)
       `)
       .order('created_at', { ascending: false })
-      .limit(3);
+      .limit(2);
 
     distribuicoes?.forEach(distribuicao => {
       activities.push({
@@ -206,12 +206,12 @@ const Dashboard = () => {
       });
     });
 
-    // Últimos 2 beneficiários cadastrados
+    // Último beneficiário cadastrado
     const { data: beneficiarios } = await supabase
       .from('beneficiarios')
       .select('id, nome, created_at')
       .order('created_at', { ascending: false })
-      .limit(2);
+      .limit(1);
 
     beneficiarios?.forEach(beneficiario => {
       activities.push({
@@ -224,10 +224,10 @@ const Dashboard = () => {
       });
     });
 
-    // Ordenar por data mais recente
+    // Ordenar por data mais recente e limitar a 3 itens
     activities.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-    setRecentActivities(activities.slice(0, 6));
+    setRecentActivities(activities.slice(0, 3));
   };
 
   const fetchUrgentActions = async () => {
@@ -300,7 +300,13 @@ const Dashboard = () => {
       });
     }
 
-    setUrgentActions(actions);
+    // Ordenar por prioridade (high > medium > low) e limitar a 3 itens
+    actions.sort((a, b) => {
+      const priorityOrder = { high: 3, medium: 2, low: 1 };
+      return priorityOrder[b.priority] - priorityOrder[a.priority];
+    });
+
+    setUrgentActions(actions.slice(0, 3));
   };
 
   const formatTimeAgo = (dateString: string) => {
@@ -552,7 +558,7 @@ const Dashboard = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Button 
                 className="h-20 flex-col gap-2 bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-500 text-white shadow-lg hover:shadow-xl transition-all duration-200 relative overflow-hidden"
-                onClick={() => navigate('/cadastro')}
+                onClick={() => navigate('/beneficiarios')}
               >
                 <UserPlus className="h-6 w-6" />
                 <span className="text-sm">Novo Beneficiário</span>
